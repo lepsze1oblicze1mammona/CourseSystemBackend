@@ -3,13 +3,22 @@ System kursów dla nauczycieli i studentów
 
 PLIKI
 /etc/sn/
-  ├── Kursy/                  # Główny folder kursów
-  │   ├── [NazwaKursu]/       # Folder kursu (tworzony przez skrypt 1)
-  │   │   ├── Zadania/        # Folder z zadaniami (tworzony przez skrypt 2)
-  │   │   │   ├── Zadanie1/   # Podfolder dla konkretnego zadania
-  │   │   │   └── ...  
-  │   │   └── ...  
-  └── ...  
+
+├── Kursy/                  # Główny folder kursów
+
+│   ├── [NazwaKursu]/       # Folder kursu (tworzony przez skrypt 1)
+
+│   │   ├── Zadania/        # Folder z zadaniami (tworzony przez skrypt 2)
+
+│   │   │   ├── Zadanie1/   # Podfolder dla konkretnego zadania
+
+│   │   │   └── ...  
+
+│   │   └── ...  
+
+└── ...  
+
+
 SKRYPTY
 scripts/  
   ├── utils/              # Wspólne funkcje pomocnicze
