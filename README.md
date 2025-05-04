@@ -21,8 +21,6 @@ PLIKI
 
 SKRYPTY
 scripts/  
-  ├── utils/              # Wspólne funkcje pomocnicze
-  │   ├── __init__.py  
   │   └── database.py     # Połączenie z bazą, zapytania SQL  
   ├── create_course.py  
   ├── create_task.py  
