@@ -35,3 +35,11 @@ def wyslij_zadanie(sciezka_pliku, student_id, kurs_id, zadanie_id):
     shutil.copy(sciezka_pliku, sciezka_docelowa)
     
     conn.close()
+
+if __name__ == "__main__":
+    sciezka_pliku = input("Podaj ścieżkę do pliku: ")
+    student_id = int(input("Podaj ID studenta: "))
+    kurs_id = int(input("Podaj ID kursu: "))
+    zadanie_id = int(input("Podaj ID zadania: "))
+    
+    wyslij_zadanie(sciezka_pliku, student_id, kurs_id, zadanie_id)

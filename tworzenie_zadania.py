@@ -25,3 +25,10 @@ def stworz_zadanie(nazwa_kursu, nazwa_zadania, termin):
     
     conn.commit()
     conn.close()
+
+if __name__ == "__main__":
+        nazwa_kursu = input("Podaj nazwę kursu: ")
+        nazwa_zadania = input("Podaj nazwę zadania: ")
+        termin = input("Podaj termin realizacji (YYYY-MM-DD): ")
+    
+        stworz_zadanie(nazwa_kursu, nazwa_zadania, termin)

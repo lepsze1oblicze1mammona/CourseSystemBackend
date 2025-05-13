@@ -18,3 +18,8 @@ def usun_kurs(nazwa):
     
     conn.commit()
     conn.close()
+
+if __name__ == "__main__":
+    nazwa_kursu = input("Podaj nazwę kursu do usunięcia: ")
+    
+    usun_kurs(nazwa_kursu)

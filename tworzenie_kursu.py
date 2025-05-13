@@ -24,3 +24,9 @@ def stworz_kurs(nazwa, wlasciciel_id):
     
     conn.commit()
     conn.close()
+
+if __name__ == "__main__":
+    nazwa_kursu = input("Podaj nazwę kursu: ")
+    wlasciciel_id = input("Podaj ID właściciela kursu: ")
+    
+    stworz_kurs(nazwa_kursu, wlasciciel_id)

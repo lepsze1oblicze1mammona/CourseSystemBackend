@@ -10,5 +10,18 @@ def zmien_termin_zadania(nazwa_kursu, nazwa_zadania, nowy_termin):
     
     c.execute("UPDATE KursNazwa SET termin_realizacji=? WHERE nazwa=? AND kurs_id=(SELECT id FROM WszystkieKursy WHERE nazwa=?)", (nowy_termin, nazwa_zadania, nazwa_kursu))
     
+    if c.rowcount == 0:
+        print(f"Nie znaleziono zadania '{nazwa_zadania}' w kursie '{nazwa_kursu}'.")
+    else:
+        print(f"Termin zadania '{nazwa_zadania}' w kursie '{nazwa_kursu}' został zmieniony na {nowy_termin}.")
+
     conn.commit()
     conn.close()
+
+if __name__ == "__main__":
+    nazwa_kursu = input("Podaj nazwę kursu: ")
+    nazwa_zadania = input("Podaj nazwę zadania: ")
+    nowy_termin = input("Podaj nowy termin realizacji (YYYY-MM-DD): ")
+    
+    # Wywołanie funkcji zmieniającej termin zadania
+    zmien_termin_zadania(nazwa_kursu, nazwa_zadania, nowy_termin)

@@ -22,3 +22,10 @@ def usun_zadanie(nazwa_kursu, nazwa_zadania):
     
     conn.commit()
     conn.close()
+
+if __name__ == "__main__":
+    nazwa_kursu = input("Podaj nazwę kursu: ")
+    nazwa_zadania = input("Podaj nazwę zadania do usunięcia: ")
+    
+    # Wywołanie funkcji usuwającej zadanie
+    usun_zadanie(nazwa_kursu, nazwa_zadania)

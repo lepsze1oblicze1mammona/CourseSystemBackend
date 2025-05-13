@@ -37,3 +37,10 @@ def sprawdz_plik(student_id, zadanie_id):
         return "OK"
     else:
         return "Brak pliku"
+    
+if __name__ == "__main__":
+    student_id = int(input("Podaj ID studenta: "))
+    zadanie_id = int(input("Podaj ID zadania: "))
+    
+    wynik = sprawdz_plik(student_id, zadanie_id)
+    print(f"Wynik sprawdzenia: {wynik}")
