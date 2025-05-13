@@ -7,7 +7,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 db_file = os.path.join(BASE_DIR, "etc", "sn", "baza.db")
 
 def get_db_connection():
-    conn = sqlite3.connect('db_file')
+    conn = sqlite3.connect(db_file)
     conn.execute("PRAGMA foreign_keys = ON")
     return conn
 
