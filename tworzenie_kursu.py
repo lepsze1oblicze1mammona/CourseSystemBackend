@@ -1,5 +1,6 @@
 import sqlite3
 import os
+import argparse
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 db_file = os.path.join(BASE_DIR, "etc", "sn", "baza.db")
@@ -26,7 +27,11 @@ def stworz_kurs(nazwa, wlasciciel_id):
     conn.close()
 
 if __name__ == "__main__":
-    nazwa_kursu = input("Podaj nazwę kursu: ")
-    wlasciciel_id = input("Podaj ID właściciela kursu: ")
+    parser = argparse.ArgumentParser(description="Tworzenie nowego kursu")
+    parser.add_argument('--nazwa_kursu', required=True, help="Nazwa kursu")
+    parser.add_argument('--wlasciciel_id', required=True, type=int, help="ID właściciela kursu")
     
-    stworz_kurs(nazwa_kursu, wlasciciel_id)
+    args = parser.parse_args()
+    
+    stworz_kurs(args.nazwa_kursu, args.wlasciciel_id)
+

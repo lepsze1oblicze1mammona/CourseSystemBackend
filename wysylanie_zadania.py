@@ -1,6 +1,7 @@
 import sqlite3
 import shutil
 import os
+import argparse
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 db_file = os.path.join(BASE_DIR, "etc", "sn", "baza.db")
@@ -37,9 +38,12 @@ def wyslij_zadanie(sciezka_pliku, student_id, kurs_id, zadanie_id):
     conn.close()
 
 if __name__ == "__main__":
-    sciezka_pliku = input("Podaj ścieżkę do pliku: ")
-    student_id = int(input("Podaj ID studenta: "))
-    kurs_id = int(input("Podaj ID kursu: "))
-    zadanie_id = int(input("Podaj ID zadania: "))
+    parser = argparse.ArgumentParser(description="Wysyłanie zadania przez studenta")
+    parser.add_argument('--sciezka_pliku', required=True, help="Ścieżka do pliku do wysłania")
+    parser.add_argument('--student_id', required=True, type=int, help="ID studenta")
+    parser.add_argument('--kurs_id', required=True, type=int, help="ID kursu")
+    parser.add_argument('--zadanie_id', required=True, type=int, help="ID zadania")
     
-    wyslij_zadanie(sciezka_pliku, student_id, kurs_id, zadanie_id)
+    args = parser.parse_args()
+  
+    wyslij_zadanie(args.sciezka_pliku, args.student_id, args.kurs_id, args.zadanie_id)

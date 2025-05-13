@@ -1,5 +1,6 @@
 import sqlite3
 import os
+import argparse
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 db_file = os.path.join(BASE_DIR, "etc", "sn", "baza.db")
@@ -19,9 +20,11 @@ def zmien_termin_zadania(nazwa_kursu, nazwa_zadania, nowy_termin):
     conn.close()
 
 if __name__ == "__main__":
-    nazwa_kursu = input("Podaj nazwę kursu: ")
-    nazwa_zadania = input("Podaj nazwę zadania: ")
-    nowy_termin = input("Podaj nowy termin realizacji (YYYY-MM-DD): ")
+    parser = argparse.ArgumentParser(description="Modyfikacja terminu zadania")
+    parser.add_argument('--nazwa_kursu', required=True, help="Nazwa kursu")
+    parser.add_argument('--nazwa_zadania', required=True, help="Nazwa zadania")
+    parser.add_argument('--nowy_termin', required=True, help="Nowy termin realizacji (YYYY-MM-DD)")
     
-    # Wywołanie funkcji zmieniającej termin zadania
-    zmien_termin_zadania(nazwa_kursu, nazwa_zadania, nowy_termin)
+    args = parser.parse_args()
+    
+    zmien_termin_zadania(args.nazwa_kursu, args.nazwa_zadania, args.nowy_termin)

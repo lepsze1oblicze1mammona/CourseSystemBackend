@@ -1,5 +1,6 @@
 import sqlite3
 import os
+import argparse
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 db_file = os.path.join(BASE_DIR, "etc", "sn", "baza.db")
@@ -27,8 +28,11 @@ def stworz_zadanie(nazwa_kursu, nazwa_zadania, termin):
     conn.close()
 
 if __name__ == "__main__":
-        nazwa_kursu = input("Podaj nazwę kursu: ")
-        nazwa_zadania = input("Podaj nazwę zadania: ")
-        termin = input("Podaj termin realizacji (YYYY-MM-DD): ")
+    parser = argparse.ArgumentParser(description="Tworzenie nowego zadania")
+    parser.add_argument('--nazwa_kursu', required=True, help="Nazwa kursu")
+    parser.add_argument('--nazwa_zadania', required=True, help="Nazwa zadania")
+    parser.add_argument('--termin', required=True, help="Termin realizacji zadania (YYYY-MM-DD)")
     
-        stworz_zadanie(nazwa_kursu, nazwa_zadania, termin)
+    args = parser.parse_args()
+    
+    stworz_zadanie(args.nazwa_kursu, args.nazwa_zadania, args.termin)

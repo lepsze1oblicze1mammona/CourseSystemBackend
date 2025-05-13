@@ -2,6 +2,7 @@ import sqlite3
 from datetime import datetime 
 import glob
 import os
+import argparse
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 db_file = os.path.join(BASE_DIR, "etc", "sn", "baza.db")
@@ -39,8 +40,11 @@ def sprawdz_plik(student_id, zadanie_id):
         return "Brak pliku"
     
 if __name__ == "__main__":
-    student_id = int(input("Podaj ID studenta: "))
-    zadanie_id = int(input("Podaj ID zadania: "))
+    parser = argparse.ArgumentParser(description="Sprawdzanie obecności pliku studenta")
+    parser.add_argument('--student_id', required=True, type=int, help="ID studenta")
+    parser.add_argument('--zadanie_id', required=True, type=int, help="ID zadania")
     
-    wynik = sprawdz_plik(student_id, zadanie_id)
+    args = parser.parse_args()
+    
+    wynik = sprawdz_plik(args.student_id, args.zadanie_id)
     print(f"Wynik sprawdzenia: {wynik}")

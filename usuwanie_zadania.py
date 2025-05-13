@@ -1,6 +1,7 @@
 import sqlite3
 import shutil
 import os
+import argparse
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 db_file = os.path.join(BASE_DIR, "etc", "sn", "baza.db")
@@ -24,8 +25,10 @@ def usun_zadanie(nazwa_kursu, nazwa_zadania):
     conn.close()
 
 if __name__ == "__main__":
-    nazwa_kursu = input("Podaj nazwę kursu: ")
-    nazwa_zadania = input("Podaj nazwę zadania do usunięcia: ")
+    parser = argparse.ArgumentParser(description="Usuwanie zadania z kursu")
+    parser.add_argument('--nazwa_kursu', required=True, help="Nazwa kursu")
+    parser.add_argument('--nazwa_zadania', required=True, help="Nazwa zadania do usunięcia")
     
-    # Wywołanie funkcji usuwającej zadanie
-    usun_zadanie(nazwa_kursu, nazwa_zadania)
+    args = parser.parse_args()
+    
+    usun_zadanie(args.nazwa_kursu, args.nazwa_zadania)

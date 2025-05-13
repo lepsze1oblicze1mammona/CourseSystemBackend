@@ -1,5 +1,6 @@
 import sqlite3
 import os
+import argparse
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 db_file = os.path.join(BASE_DIR, "etc", "sn", "baza.db")
@@ -29,11 +30,10 @@ def zmien_nazwe_kursu(stara_nazwa, nowa_nazwa):
     conn.close()
 
 if __name__ == "__main__":
-    zmien_nazwe_kursu()
-
-if __name__ == "__main__":
-    stara_nazwa = input("Podaj obecną nazwę kursu: ")
-    nowa_nazwa = input("Podaj nową nazwę kursu: ")
+    parser = argparse.ArgumentParser(description="Modyfikacja nazwy kursu")
+    parser.add_argument('--stara_nazwa', required=True, help="Obecna nazwa kursu")
+    parser.add_argument('--nowa_nazwa', required=True, help="Nowa nazwa kursu")
     
-    # Wywołanie funkcji zmieniającej nazwę kursu
-    zmien_nazwe_kursu(stara_nazwa, nowa_nazwa)
+    args = parser.parse_args()
+    
+    zmien_nazwe_kursu(args.stara_nazwa, args.nowa_nazwa)
