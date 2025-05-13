@@ -2,9 +2,11 @@ import sqlite3
 import shutil
 import os
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+db_file = os.path.join(BASE_DIR, "etc", "sn", "baza.db")
 
 def wyslij_zadanie(sciezka_pliku, student_id, kurs_id, zadanie_id):
-    conn = sqlite3.connect('baza.db')
+    conn = sqlite3.connect(db_file)
     c = conn.cursor()
     
     # Pobierz nazwę kursu i zadania
@@ -29,7 +31,7 @@ def wyslij_zadanie(sciezka_pliku, student_id, kurs_id, zadanie_id):
     nowa_nazwa = f"{imie}_{nazwisko}{rozszerzenie}"
     
     # Skopiuj plik do folderu zadania
-    sciezka_docelowa = f"/etc/sn/Kursy/{kurs_nazwa}/Zadania/{zadanie_nazwa}/{nowa_nazwa}"
+    sciezka_docelowa = f"etc/sn/Kursy/{kurs_nazwa}/Zadania/{zadanie_nazwa}/{nowa_nazwa}"
     shutil.copy(sciezka_pliku, sciezka_docelowa)
     
     conn.close()

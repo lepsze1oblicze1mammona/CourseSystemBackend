@@ -1,8 +1,11 @@
 import sqlite3
 import os
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+db_file = os.path.join(BASE_DIR, "etc", "sn", "baza.db")
+
 def stworz_zadanie(nazwa_kursu, nazwa_zadania, termin):
-    conn = sqlite3.connect('baza.db')
+    conn = sqlite3.connect(db_file)
     c = conn.cursor()
     
     # Znajdź ID kursu
@@ -17,7 +20,7 @@ def stworz_zadanie(nazwa_kursu, nazwa_zadania, termin):
               (nazwa_zadania, termin, kurs_id[0]))
     
     # Utwórz folder zadania
-    sciezka = f"/etc/sn/Kursy/{nazwa_kursu}/Zadania/{nazwa_zadania}"
+    sciezka = f"etc/sn/Kursy/{nazwa_kursu}/Zadania/{nazwa_zadania}"
     os.makedirs(sciezka, exist_ok=True)
     
     conn.commit()

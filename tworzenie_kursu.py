@@ -1,8 +1,11 @@
 import sqlite3
 import os
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+db_file = os.path.join(BASE_DIR, "etc", "sn", "baza.db")
+
 def stworz_kurs(nazwa, wlasciciel_id):
-    conn = sqlite3.connect('baza.db')
+    conn = sqlite3.connect(db_file)
     c = conn.cursor()
     
     # Sprawdź unikalność nazwy
@@ -16,7 +19,7 @@ def stworz_kurs(nazwa, wlasciciel_id):
     kurs_id = c.lastrowid
     
     # Utwórz folder
-    sciezka = f"/etc/sn/Kursy/{nazwa}"
+    sciezka = f"etc/sn/Kursy/{nazwa}"
     os.makedirs(sciezka, exist_ok=True)
     
     conn.commit()

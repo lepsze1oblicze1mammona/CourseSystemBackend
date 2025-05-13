@@ -1,8 +1,11 @@
 import sqlite3
 import os
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+db_file = os.path.join(BASE_DIR, "etc", "sn", "baza.db")
+
 def get_db_connection():
-    conn = sqlite3.connect('/etc/sn/baza.db')
+    conn = sqlite3.connect(db_file)
     return conn
 
 def check_course_exists(course_name):

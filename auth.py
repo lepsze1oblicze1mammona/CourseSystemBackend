@@ -1,14 +1,17 @@
 import sqlite3
 import bcrypt
 import argparse
+import os
 
-# Połączenie z bazą danych
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+db_file = os.path.join(BASE_DIR, "etc", "sn", "baza.db")
+
 def get_db_connection():
-    conn = sqlite3.connect('baza.db')
+    conn = sqlite3.connect('db_file')
     conn.execute("PRAGMA foreign_keys = ON")
     return conn
 
-# Tworzenie tabel (uruchomić raz)
+
 def create_tables():
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -45,6 +48,52 @@ def create_tables():
             FOREIGN KEY (user_id) REFERENCES users(id)
         )
     ''')
+
+    # Tabela WszystkieKursy
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS WszystkieKursy (
+            id INTEGER PRIMARY KEY,
+            nazwa TEXT UNIQUE NOT NULL,
+            wlasciciel INTEGER NOT NULL,
+            FOREIGN KEY (wlasciciel) REFERENCES Nauczyciele(id)
+        )
+    ''')
+
+    # Tabela KursNazwa
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS KursNazwa (
+            id INTEGER PRIMARY KEY,
+            nazwa TEXT NOT NULL,
+            opis TEXT,
+            termin_realizacji DATE,
+            kurs_id INTEGER NOT NULL,
+            FOREIGN KEY (kurs_id) REFERENCES WszystkieKursy(id)
+        )
+    ''')
+
+    # Tabela Dołączenia
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS Dolaczenia (
+            id INTEGER PRIMARY KEY,
+            student_id INTEGER NOT NULL,
+            kurs_id INTEGER NOT NULL,
+            status TEXT NOT NULL CHECK (status IN ('pending', 'accepted', 'rejected')),
+            FOREIGN KEY (student_id) REFERENCES Student(id),
+            FOREIGN KEY (kurs_id) REFERENCES WszystkieKursy(id)
+        )
+    ''')
+
+     # Tabela uczniowie_kursy
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS uczniowie_kursy (
+            uczen_id INTEGER,
+            kurs_id INTEGER,
+            PRIMARY KEY (uczen_id, kurs_id),
+            FOREIGN KEY (uczen_id) REFERENCES Student(id),
+            FOREIGN KEY (kurs_id) REFERENCES WszystkieKursy(id)
+        )
+    ''')
+
     
     conn.commit()
     conn.close()

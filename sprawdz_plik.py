@@ -1,10 +1,14 @@
 import sqlite3
 from datetime import datetime 
 import glob
+import os
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+db_file = os.path.join(BASE_DIR, "etc", "sn", "baza.db")
 
 
 def sprawdz_plik(student_id, zadanie_id):
-    conn = sqlite3.connect('baza.db')
+    conn = sqlite3.connect(db_file)
     c = conn.cursor()
 
     # Pobierz nazwę kursu i zadania
@@ -28,7 +32,7 @@ def sprawdz_plik(student_id, zadanie_id):
         return "Termin przekroczony"
     
     # Sprawdź obecność pliku
-    sciezka = f"/etc/sn/Kursy/{kurs_nazwa}/Zadania/{zadanie_nazwa}/{imie}_{nazwisko}.*"
+    sciezka = f"etc/sn/Kursy/{kurs_nazwa}/Zadania/{zadanie_nazwa}/{imie}_{nazwisko}.*"
     if glob.glob(sciezka):
         return "OK"
     else:
