@@ -9,23 +9,26 @@ def stworz_zadanie(nazwa_kursu, nazwa_zadania, termin):
     conn = sqlite3.connect(db_file)
     c = conn.cursor()
     
-    # Znajdź ID kursu
+    # Znajdź ID kursu po nazwie
     c.execute("SELECT id FROM WszystkieKursy WHERE nazwa=?", (nazwa_kursu,))
-    kurs_id = c.fetchone()
-    if not kurs_id:
-        print("Kurs nie istnieje!")
+    row = c.fetchone()
+    if not row:
+        print(f"Kurs '{nazwa_kursu}' nie istnieje!")
+        conn.close()
         return
+    kurs_id = row[0]
     
     # Dodaj zadanie do bazy
     c.execute("INSERT INTO KursNazwa (nazwa, termin_realizacji, kurs_id) VALUES (?, ?, ?)", 
-              (nazwa_zadania, termin, kurs_id[0]))
+              (nazwa_zadania, termin, kurs_id))
     
     # Utwórz folder zadania
-    sciezka = f"etc/sn/Kursy/{nazwa_kursu}/Zadania/{nazwa_zadania}"
+    sciezka = os.path.join(BASE_DIR, "etc", "sn", "Kursy", nazwa_kursu, "Zadania", nazwa_zadania)
     os.makedirs(sciezka, exist_ok=True)
     
     conn.commit()
     conn.close()
+    print(f"Zadanie '{nazwa_zadania}' zostało utworzone w kursie '{nazwa_kursu}'.")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Tworzenie nowego zadania")

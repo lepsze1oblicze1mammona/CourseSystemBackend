@@ -9,6 +9,13 @@ def zmien_nazwe_kursu(stara_nazwa, nowa_nazwa):
     conn = sqlite3.connect(db_file)
     c = conn.cursor()
     
+    # Sprawdź, czy kurs o nowej nazwie już istnieje
+    c.execute("SELECT id FROM WszystkieKursy WHERE nazwa=?", (nowa_nazwa,))
+    if c.fetchone():
+        print(f"Kurs o nazwie '{nowa_nazwa}' już istnieje!")
+        conn.close()
+        return
+
     # Aktualizuj nazwę w bazie
     c.execute("UPDATE WszystkieKursy SET nazwa=? WHERE nazwa=?", (nowa_nazwa, stara_nazwa))
     

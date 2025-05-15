@@ -9,7 +9,17 @@ def zmien_termin_zadania(nazwa_kursu, nazwa_zadania, nowy_termin):
     conn = sqlite3.connect(db_file)
     c = conn.cursor()
     
-    c.execute("UPDATE KursNazwa SET termin_realizacji=? WHERE nazwa=? AND kurs_id=(SELECT id FROM WszystkieKursy WHERE nazwa=?)", (nowy_termin, nazwa_zadania, nazwa_kursu))
+    # Pobierz id kursu po nazwie
+    c.execute("SELECT id FROM WszystkieKursy WHERE nazwa=?", (nazwa_kursu,))
+    row = c.fetchone()
+    if not row:
+        print(f"Kurs '{nazwa_kursu}' nie istnieje!")
+        conn.close()
+        return
+    kurs_id = row[0]
+    
+    # Zmień termin zadania po nazwie i kursie
+    c.execute("UPDATE KursNazwa SET termin_realizacji=? WHERE nazwa=? AND kurs_id=?", (nowy_termin, nazwa_zadania, kurs_id))
     
     if c.rowcount == 0:
         print(f"Nie znaleziono zadania '{nazwa_zadania}' w kursie '{nazwa_kursu}'.")

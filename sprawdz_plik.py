@@ -1,5 +1,5 @@
 import sqlite3
-from datetime import datetime 
+from datetime import datetime
 import glob
 import os
 import argparse
@@ -7,44 +7,68 @@ import argparse
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 db_file = os.path.join(BASE_DIR, "etc", "sn", "baza.db")
 
-
-def sprawdz_plik(student_id, zadanie_id):
+def sprawdz_plik(student_login, nazwa_kursu, nazwa_zadania):
     conn = sqlite3.connect(db_file)
     c = conn.cursor()
 
-    # Pobierz nazwę kursu i zadania
-    c.execute("SELECT kurs_id FROM KursNazwa WHERE id=?", (zadanie_id,))
-    kurs_id = c.fetchone()[0]
-    
-    c.execute("SELECT nazwa FROM WszystkieKursy WHERE id=?", (kurs_id,))
-    kurs_nazwa = c.fetchone()[0]
-    
-    c.execute("SELECT nazwa FROM KursNazwa WHERE id=?", (zadanie_id,))
-    zadanie_nazwa = c.fetchone()[0]
-    
-    # Pobierz dane studenta i zadania
-    c.execute("SELECT imie, nazwisko FROM Student WHERE id=?", (student_id,))
-    imie, nazwisko = c.fetchone()
-    c.execute("SELECT termin_realizacji FROM KursNazwa WHERE id=?", (zadanie_id,))
-    termin = c.fetchone()[0]
-    
+    # Najpierw pobierz id użytkownika po emailu
+    c.execute("SELECT id FROM users WHERE email=?", (student_login,))
+    user = c.fetchone()
+    if not user:
+        print(f"Użytkownik o emailu '{student_login}' nie istnieje!")
+        conn.close()
+        return "Brak studenta"
+    user_id = user[0]
+
+    # Następnie pobierz id, imię i nazwisko studenta po user_id
+    c.execute("SELECT id, imie, nazwisko FROM Student WHERE user_id=?", (user_id,))
+    student = c.fetchone()
+    if not student:
+        print(f"Student powiązany z użytkownikiem '{student_login}' nie istnieje!")
+        conn.close()
+        return "Brak studenta"
+    student_id, imie, nazwisko = student
+
+    # Pobierz id kursu po nazwie
+    c.execute("SELECT id FROM WszystkieKursy WHERE nazwa=?", (nazwa_kursu,))
+    kurs = c.fetchone()
+    if not kurs:
+        print(f"Kurs '{nazwa_kursu}' nie istnieje!")
+        conn.close()
+        return "Brak kursu"
+    kurs_id = kurs[0]
+
+    # Pobierz id zadania po nazwie i kursie
+    c.execute("SELECT id, termin_realizacji FROM KursNazwa WHERE nazwa=? AND kurs_id=?", (nazwa_zadania, kurs_id))
+    zadanie = c.fetchone()
+    if not zadanie:
+        print(f"Zadanie '{nazwa_zadania}' nie istnieje w kursie '{nazwa_kursu}'!")
+        conn.close()
+        return "Brak zadania"
+    zadanie_id, termin = zadanie
+
     # Sprawdź, czy termin minął
-    if datetime.now() > termin:
+    if datetime.now() > datetime.strptime(termin, "%Y-%m-%d"):
+        conn.close()
         return "Termin przekroczony"
-    
+
     # Sprawdź obecność pliku
-    sciezka = f"etc/sn/Kursy/{kurs_nazwa}/Zadania/{zadanie_nazwa}/{imie}_{nazwisko}.*"
+    sciezka = os.path.join(BASE_DIR, "etc", "sn", "Kursy", nazwa_kursu, "Zadania", nazwa_zadania, f"{imie}_{nazwisko}.*")
     if glob.glob(sciezka):
-        return "OK"
+        wynik = "OK"
     else:
-        return "Brak pliku"
-    
+        wynik = "Brak pliku"
+
+    conn.close()
+    return wynik
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Sprawdzanie obecności pliku studenta")
-    parser.add_argument('--student_id', required=True, type=int, help="ID studenta")
-    parser.add_argument('--zadanie_id', required=True, type=int, help="ID zadania")
-    
+    parser.add_argument('--student_login', required=True, help="Login studenta")
+    parser.add_argument('--nazwa_kursu', required=True, help="Nazwa kursu")
+    parser.add_argument('--nazwa_zadania', required=True, help="Nazwa zadania")
+
     args = parser.parse_args()
-    
-    wynik = sprawdz_plik(args.student_id, args.zadanie_id)
+
+    wynik = sprawdz_plik(args.student_login, args.nazwa_kursu, args.nazwa_zadania)
     print(f"Wynik sprawdzenia: {wynik}")
