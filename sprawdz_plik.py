@@ -52,8 +52,12 @@ def sprawdz_plik(student_login, nazwa_kursu, nazwa_zadania):
         conn.close()
         return "Termin przekroczony"
 
-    # Sprawdź obecność pliku
-    sciezka = os.path.join(BASE_DIR, "etc", "sn", "Kursy", nazwa_kursu, "Zadania", nazwa_zadania, f"{imie}_{nazwisko}.*")
+    login = student_login  # email jest loginem
+
+    # Sprawdź obecność pliku w folderze użytkownika
+    sciezka = os.path.join(
+        BASE_DIR, "etc", "sn", "Kursy", nazwa_kursu, "Zadania", nazwa_zadania, login, f"{imie}_{nazwisko}.*"
+    )
     if glob.glob(sciezka):
         wynik = "OK"
     else:

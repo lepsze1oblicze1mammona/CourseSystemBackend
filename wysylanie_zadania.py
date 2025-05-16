@@ -50,16 +50,22 @@ def wyslij_zadanie(sciezka_pliku, student_login, nazwa_kursu, nazwa_zadania):
         print("Student nie jest przypisany do kursu!")
         return
 
-    # Utwórz nazwę pliku
+    # Pobierz login użytkownika (email)
+    login = student_login  # email jest loginem
+
+    # Utwórz folder użytkownika w folderze zadania
+    sciezka_docelowa = os.path.join(
+        BASE_DIR, "etc", "sn", "Kursy", nazwa_kursu, "Zadania", nazwa_zadania, login
+    )
+    os.makedirs(sciezka_docelowa, exist_ok=True)
+
+    # Skopiuj plik do folderu użytkownika
     rozszerzenie = os.path.splitext(sciezka_pliku)[1]
     nowa_nazwa = f"{imie}_{nazwisko}{rozszerzenie}"
+    sciezka_docelowa_pliku = os.path.join(sciezka_docelowa, nowa_nazwa)
+    shutil.copy(sciezka_pliku, sciezka_docelowa_pliku)
 
-    # Skopiuj plik do folderu zadania
-    sciezka_docelowa = os.path.join(BASE_DIR, "etc", "sn", "Kursy", nazwa_kursu, "Zadania", nazwa_zadania, nowa_nazwa)
-    os.makedirs(os.path.dirname(sciezka_docelowa), exist_ok=True)
-    shutil.copy(sciezka_pliku, sciezka_docelowa)
-
-    print(f"Plik został wysłany do: {sciezka_docelowa}")
+    print(f"Plik został wysłany do: {sciezka_docelowa_pliku}")
     conn.close()
 
 if __name__ == "__main__":
