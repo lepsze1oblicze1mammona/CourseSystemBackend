@@ -1,0 +1,4 @@
+http://localhost:8080/swagger/index.html
+
+#NOWE ENDPOINTY 
+swag init --generalInfo main.go --output docs

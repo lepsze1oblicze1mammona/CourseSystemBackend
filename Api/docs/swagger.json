@@ -1,0 +1,696 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "API server for managing courses and assignments.",
+        "title": "Course System Backend",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/",
+    "paths": {
+        "/all": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "List all tables",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/kurs": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Rename course",
+                "parameters": [
+                    {
+                        "description": "Rename course",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.RenameCourseReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.ScriptResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Create course",
+                "parameters": [
+                    {
+                        "description": "Create course request",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.CreateCourseReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.ScriptResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Delete course",
+                "parameters": [
+                    {
+                        "description": "Delete course",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.DeleteCourseReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.ScriptResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/kurs/assign": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Assign user to course",
+                "parameters": [
+                    {
+                        "description": "Assign user",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.AssignUserReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.ScriptResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/kurs/remove": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Remove user from course",
+                "parameters": [
+                    {
+                        "description": "Remove user",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.RemoveUserReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.ScriptResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/login": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Login user",
+                "parameters": [
+                    {
+                        "description": "Login user",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.LoginReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/register": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Register user",
+                "parameters": [
+                    {
+                        "description": "Register user",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.RegisterReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.ScriptResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/whoami": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Who am I",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User login",
+                        "name": "login",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.ScriptResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/zadanie": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Reschedule assignment",
+                "parameters": [
+                    {
+                        "description": "Reschedule assingment",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.RescheduleAssignmentReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.ScriptResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Create assignment",
+                "parameters": [
+                    {
+                        "description": "Create course assingment",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.CreateAssignmentReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.ScriptResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Delete assignment",
+                "parameters": [
+                    {
+                        "description": "Delete assingment",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.DeleteAssignmentReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.ScriptResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/zadanie/check": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Check submission",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Student login",
+                        "name": "student_login",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Course name",
+                        "name": "nazwa_kursu",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Assignment name",
+                        "name": "nazwa_zadania",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.ScriptResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/zadanie/upload": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Submit assignment",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Student login",
+                        "name": "student_login",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Course name",
+                        "name": "nazwa_kursu",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Assignment name",
+                        "name": "nazwa_zadania",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Assignment file",
+                        "name": "plik",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.ScriptResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "main.AssignUserReq": {
+            "type": "object",
+            "required": [
+                "nazwa_kursu",
+                "student_login"
+            ],
+            "properties": {
+                "nazwa_kursu": {
+                    "type": "string"
+                },
+                "student_login": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.CreateAssignmentReq": {
+            "type": "object",
+            "required": [
+                "nazwa_kursu",
+                "nazwa_zadania",
+                "termin"
+            ],
+            "properties": {
+                "nazwa_kursu": {
+                    "type": "string"
+                },
+                "nazwa_zadania": {
+                    "type": "string"
+                },
+                "termin": {
+                    "description": "YYYY-MM-DD",
+                    "type": "string"
+                }
+            }
+        },
+        "main.CreateCourseReq": {
+            "type": "object",
+            "required": [
+                "nazwa",
+                "wlasciciel_login"
+            ],
+            "properties": {
+                "nazwa": {
+                    "type": "string"
+                },
+                "wlasciciel_login": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.DeleteAssignmentReq": {
+            "type": "object",
+            "required": [
+                "nazwa_kursu",
+                "nazwa_zadania"
+            ],
+            "properties": {
+                "nazwa_kursu": {
+                    "type": "string"
+                },
+                "nazwa_zadania": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.DeleteCourseReq": {
+            "type": "object",
+            "required": [
+                "nazwa"
+            ],
+            "properties": {
+                "nazwa": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.LoginReq": {
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.RegisterReq": {
+            "type": "object",
+            "required": [
+                "email",
+                "imie",
+                "nazwisko",
+                "password",
+                "role"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "imie": {
+                    "type": "string"
+                },
+                "klasa": {
+                    "type": "string"
+                },
+                "nazwisko": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.RemoveUserReq": {
+            "type": "object",
+            "required": [
+                "nazwa_kursu",
+                "student_login"
+            ],
+            "properties": {
+                "nazwa_kursu": {
+                    "type": "string"
+                },
+                "student_login": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.RenameCourseReq": {
+            "type": "object",
+            "required": [
+                "nowa_nazwa",
+                "stara_nazwa"
+            ],
+            "properties": {
+                "nowa_nazwa": {
+                    "type": "string"
+                },
+                "stara_nazwa": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.RescheduleAssignmentReq": {
+            "type": "object",
+            "required": [
+                "nazwa_kursu",
+                "nazwa_zadania",
+                "nowy_termin"
+            ],
+            "properties": {
+                "nazwa_kursu": {
+                    "type": "string"
+                },
+                "nazwa_zadania": {
+                    "type": "string"
+                },
+                "nowy_termin": {
+                    "description": "YYYY-MM-DD",
+                    "type": "string"
+                }
+            }
+        },
+        "main.ScriptResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                },
+                "output": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "Enter your JWT token as: Bearer \u003ctoken\u003e",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}

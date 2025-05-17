@@ -1,0 +1,42 @@
+import sqlite3
+import shutil
+import os
+import argparse
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+db_file = os.path.join(BASE_DIR, "baza.db")
+
+def usun_kurs(nazwa_kursu):
+    conn = sqlite3.connect(db_file)
+    c = conn.cursor()
+    
+    # Sprawdź, czy kurs istnieje
+    c.execute("SELECT id FROM WszystkieKursy WHERE nazwa=?", (nazwa_kursu,))
+    row = c.fetchone()
+    if not row:
+        print(f"Kurs '{nazwa_kursu}' nie istnieje!")
+        conn.close()
+        return
+
+    # Usuń kurs z bazy
+    c.execute("DELETE FROM WszystkieKursy WHERE nazwa=?", (nazwa_kursu,))
+    
+    # Usuń folder kursu
+    sciezka = os.path.join(BASE_DIR, "etc", "sn", "Kursy", nazwa_kursu)
+    if os.path.exists(sciezka):
+        shutil.rmtree(sciezka)
+        print(f"Folder kursu '{nazwa_kursu}' został usunięty.")
+    else:
+        print(f"Folder kursu '{nazwa_kursu}' nie istnieje.")
+
+    conn.commit()
+    conn.close()
+    print(f"Kurs '{nazwa_kursu}' został usunięty z bazy danych.")
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Usuwanie kursu")
+    parser.add_argument('--nazwa', required=True, help="Nazwa kursu do usunięcia")
+    
+    args = parser.parse_args()
+    
+    usun_kurs(args.nazwa)

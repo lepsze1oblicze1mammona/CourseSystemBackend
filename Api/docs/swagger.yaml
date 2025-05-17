@@ -1,0 +1,441 @@
+basePath: /
+definitions:
+  main.AssignUserReq:
+    properties:
+      nazwa_kursu:
+        type: string
+      student_login:
+        type: string
+    required:
+    - nazwa_kursu
+    - student_login
+    type: object
+  main.CreateAssignmentReq:
+    properties:
+      nazwa_kursu:
+        type: string
+      nazwa_zadania:
+        type: string
+      termin:
+        description: YYYY-MM-DD
+        type: string
+    required:
+    - nazwa_kursu
+    - nazwa_zadania
+    - termin
+    type: object
+  main.CreateCourseReq:
+    properties:
+      nazwa:
+        type: string
+      wlasciciel_login:
+        type: string
+    required:
+    - nazwa
+    - wlasciciel_login
+    type: object
+  main.DeleteAssignmentReq:
+    properties:
+      nazwa_kursu:
+        type: string
+      nazwa_zadania:
+        type: string
+    required:
+    - nazwa_kursu
+    - nazwa_zadania
+    type: object
+  main.DeleteCourseReq:
+    properties:
+      nazwa:
+        type: string
+    required:
+    - nazwa
+    type: object
+  main.LoginReq:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  main.RegisterReq:
+    properties:
+      email:
+        type: string
+      imie:
+        type: string
+      klasa:
+        type: string
+      nazwisko:
+        type: string
+      password:
+        type: string
+      role:
+        type: string
+    required:
+    - email
+    - imie
+    - nazwisko
+    - password
+    - role
+    type: object
+  main.RemoveUserReq:
+    properties:
+      nazwa_kursu:
+        type: string
+      student_login:
+        type: string
+    required:
+    - nazwa_kursu
+    - student_login
+    type: object
+  main.RenameCourseReq:
+    properties:
+      nowa_nazwa:
+        type: string
+      stara_nazwa:
+        type: string
+    required:
+    - nowa_nazwa
+    - stara_nazwa
+    type: object
+  main.RescheduleAssignmentReq:
+    properties:
+      nazwa_kursu:
+        type: string
+      nazwa_zadania:
+        type: string
+      nowy_termin:
+        description: YYYY-MM-DD
+        type: string
+    required:
+    - nazwa_kursu
+    - nazwa_zadania
+    - nowy_termin
+    type: object
+  main.ScriptResponse:
+    properties:
+      error:
+        type: string
+      output:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API server for managing courses and assignments.
+  title: Course System Backend
+  version: "1.0"
+paths:
+  /all:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List all tables
+  /kurs:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: Delete course
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/main.DeleteCourseReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.ScriptResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete course
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Create course request
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/main.CreateCourseReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.ScriptResponse'
+      security:
+      - BearerAuth: []
+      summary: Create course
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Rename course
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/main.RenameCourseReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.ScriptResponse'
+      security:
+      - BearerAuth: []
+      summary: Rename course
+  /kurs/assign:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Assign user
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/main.AssignUserReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.ScriptResponse'
+      security:
+      - BearerAuth: []
+      summary: Assign user to course
+  /kurs/remove:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: Remove user
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/main.RemoveUserReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.ScriptResponse'
+      security:
+      - BearerAuth: []
+      summary: Remove user from course
+  /login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Login user
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/main.LoginReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Login user
+  /register:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Register user
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/main.RegisterReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.ScriptResponse'
+      summary: Register user
+  /whoami:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: User login
+        in: query
+        name: login
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.ScriptResponse'
+      security:
+      - BearerAuth: []
+      summary: Who am I
+  /zadanie:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: Delete assingment
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/main.DeleteAssignmentReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.ScriptResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete assignment
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Create course assingment
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/main.CreateAssignmentReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.ScriptResponse'
+      security:
+      - BearerAuth: []
+      summary: Create assignment
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Reschedule assingment
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/main.RescheduleAssignmentReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.ScriptResponse'
+      security:
+      - BearerAuth: []
+      summary: Reschedule assignment
+  /zadanie/check:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Student login
+        in: query
+        name: student_login
+        required: true
+        type: string
+      - description: Course name
+        in: query
+        name: nazwa_kursu
+        required: true
+        type: string
+      - description: Assignment name
+        in: query
+        name: nazwa_zadania
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.ScriptResponse'
+      security:
+      - BearerAuth: []
+      summary: Check submission
+  /zadanie/upload:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: Student login
+        in: formData
+        name: student_login
+        required: true
+        type: string
+      - description: Course name
+        in: formData
+        name: nazwa_kursu
+        required: true
+        type: string
+      - description: Assignment name
+        in: formData
+        name: nazwa_zadania
+        required: true
+        type: string
+      - description: Assignment file
+        in: formData
+        name: plik
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.ScriptResponse'
+      security:
+      - BearerAuth: []
+      summary: Submit assignment
+securityDefinitions:
+  BearerAuth:
+    description: 'Enter your JWT token as: Bearer <token>'
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

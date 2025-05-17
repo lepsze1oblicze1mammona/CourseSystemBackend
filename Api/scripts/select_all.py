@@ -1,0 +1,61 @@
+import sqlite3
+import os
+import json
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+db_file = os.path.join(BASE_DIR,"baza.db")
+
+def id_to_name_maps():
+    conn = sqlite3.connect(db_file)
+    c = conn.cursor()
+    c.execute("SELECT id, nazwa FROM WszystkieKursy")
+    kursy = {row[0]: row[1] for row in c.fetchall()}
+    # Pobierz login z tabeli users, korzystając z powiązania przez user_id
+    c.execute("SELECT Student.id, users.email FROM Student JOIN users ON Student.user_id = users.id")
+    studenci = {row[0]: row[1] for row in c.fetchall()}
+    c.execute("SELECT id, email FROM users")
+    uzytkownicy = {row[0]: row[1] for row in c.fetchall()}
+    conn.close()
+    return kursy, studenci, uzytkownicy
+
+def fetch_table_as_json(table_name, kursy, studenci, uzytkownicy):
+    conn = sqlite3.connect(db_file)
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+    c.execute(f"SELECT * FROM {table_name}")
+    rows = c.fetchall()
+    result = []
+    for row in rows:
+        row_dict = dict(row)
+        # Zamiana ID na nazwy/login w wybranych tabelach
+        if table_name == "uczniowie_kursy":
+            if "uczen_id" in row_dict:
+                row_dict["student_login"] = studenci.get(row_dict["uczen_id"], row_dict["uczen_id"])
+            if "kurs_id" in row_dict:
+                row_dict["nazwa_kursu"] = kursy.get(row_dict["kurs_id"], row_dict["kurs_id"])
+        if table_name == "WszystkieKursy":
+            if "wlasciciel" in row_dict:
+                row_dict["wlasciciel_login"] = uzytkownicy.get(row_dict["wlasciciel"], row_dict["wlasciciel"])
+        if table_name == "KursNazwa":
+            if "kurs_id" in row_dict:
+                row_dict["nazwa_kursu"] = kursy.get(row_dict["kurs_id"], row_dict["kurs_id"])
+        result.append(row_dict)
+    conn.close()
+    return result
+
+def get_all_tables():
+    conn = sqlite3.connect(db_file)
+    c = conn.cursor()
+    c.execute("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';")
+    tables = [row[0] for row in c.fetchall()]
+    conn.close()
+    return tables
+
+if __name__ == "__main__":
+    kursy, studenci, uzytkownicy = id_to_name_maps()
+    tables = get_all_tables()
+    all_data = {}
+    for table in tables:
+        all_data[table] = fetch_table_as_json(table, kursy, studenci, uzytkownicy)
+    
+    print(json.dumps(all_data, indent=2, ensure_ascii=False))
