@@ -76,7 +76,7 @@ func AuthMiddleware() gin.HandlerFunc {
 
 // Checking proper loging to not capture JWT
 func isLoginSuccess(msg string) bool {
-	re := regexp.MustCompile(`^Zalogowano jako (student|nauczyciel)! ID uzytkownika: \d+$`)
+	re := regexp.MustCompile(`^Zalogowano jako (student|nauczyciel|teacher)! ID uzytkownika: \d+$`)
 	return re.MatchString(msg)
 }
 
