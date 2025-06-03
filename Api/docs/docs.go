@@ -271,6 +271,174 @@ const docTemplate = `{
                 }
             }
         },
+        "/specialtreatment/allstudents": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get all students",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/main.StudentInfo"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/specialtreatment/creator": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get courses created by a teacher",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Teacher login (email)",
+                        "name": "login",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/main.Course"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/specialtreatment/infotask": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get info about a specific task",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Task ID",
+                        "name": "zadanie_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.Task"
+                        }
+                    }
+                }
+            }
+        },
+        "/specialtreatment/kursstudents": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get students enrolled in a specific course",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Course ID",
+                        "name": "kurs_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/main.StudentInfo"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/specialtreatment/tasks": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get tasks for a specific course",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Course ID",
+                        "name": "kurs_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/main.Task"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/whoami": {
             "get": {
                 "security": [
@@ -523,6 +691,17 @@ const docTemplate = `{
                 }
             }
         },
+        "main.Course": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "nazwa": {
+                    "type": "string"
+                }
+            }
+        },
         "main.CreateAssignmentReq": {
             "type": "object",
             "required": [
@@ -686,6 +865,46 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "output": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.StudentInfo": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "imie": {
+                    "type": "string"
+                },
+                "klasa": {
+                    "type": "string"
+                },
+                "nazwisko": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.Task": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "kurs_id": {
+                    "type": "integer"
+                },
+                "nazwa": {
+                    "type": "string"
+                },
+                "opis": {
+                    "type": "string"
+                },
+                "termin_realizacji": {
                     "type": "string"
                 }
             }

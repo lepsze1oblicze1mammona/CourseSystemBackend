@@ -10,6 +10,13 @@ definitions:
     - nazwa_kursu
     - student_login
     type: object
+  main.Course:
+    properties:
+      id:
+        type: integer
+      nazwa:
+        type: string
+    type: object
   main.CreateAssignmentReq:
     properties:
       nazwa_kursu:
@@ -121,6 +128,32 @@ definitions:
       error:
         type: string
       output:
+        type: string
+    type: object
+  main.StudentInfo:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+      imie:
+        type: string
+      klasa:
+        type: string
+      nazwisko:
+        type: string
+    type: object
+  main.Task:
+    properties:
+      id:
+        type: integer
+      kurs_id:
+        type: integer
+      nazwa:
+        type: string
+      opis:
+        type: string
+      termin_realizacji:
         type: string
     type: object
 host: localhost:8080
@@ -286,6 +319,108 @@ paths:
           schema:
             $ref: '#/definitions/main.ScriptResponse'
       summary: Register user
+  /specialtreatment/allstudents:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/main.StudentInfo'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: Get all students
+  /specialtreatment/creator:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Teacher login (email)
+        in: query
+        name: login
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/main.Course'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: Get courses created by a teacher
+  /specialtreatment/infotask:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Task ID
+        in: query
+        name: zadanie_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.Task'
+      security:
+      - BearerAuth: []
+      summary: Get info about a specific task
+  /specialtreatment/kursstudents:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Course ID
+        in: query
+        name: kurs_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/main.StudentInfo'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: Get students enrolled in a specific course
+  /specialtreatment/tasks:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Course ID
+        in: query
+        name: kurs_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/main.Task'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: Get tasks for a specific course
   /whoami:
     get:
       consumes:

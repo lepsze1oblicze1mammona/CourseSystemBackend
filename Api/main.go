@@ -13,8 +13,11 @@ package main
 
 import (
 	"bytes"
+	"database/sql"
 	"fmt"
+	"log"
 	"net/http"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"regexp"
@@ -25,6 +28,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
+	_ "github.com/mattn/go-sqlite3"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
@@ -78,6 +82,22 @@ func AuthMiddleware() gin.HandlerFunc {
 func isLoginSuccess(msg string) bool {
 	re := regexp.MustCompile(`^Zalogowano jako (student|nauczyciel|teacher)! ID uzytkownika: \d+$`)
 	return re.MatchString(msg)
+}
+
+// Database part
+func getDBPath() string {
+	// Get current working directory (the folder you ran the process from)
+	wd, err := os.Getwd()
+	if err != nil {
+		log.Fatalf("cannot get working directory: %v", err)
+	}
+
+	return filepath.Join(wd, "scripts", "baza.db")
+}
+
+func openDB() (*sql.DB, error) {
+	dbPath := getDBPath()
+	return sql.Open("sqlite3", dbPath)
 }
 
 // --- Request DTOs ---
@@ -144,6 +164,27 @@ type RegisterReq struct {
 type LoginReq struct {
 	Email    string `json:"email" binding:"required"`
 	Password string `json:"password" binding:"required"`
+}
+
+type Course struct {
+	ID    int    `json:"id"`
+	Nazwa string `json:"nazwa"`
+}
+
+type Task struct {
+	ID               int    `json:"id"`
+	Nazwa            string `json:"nazwa"`
+	Opis             string `json:"opis"`
+	TerminRealizacji string `json:"termin_realizacji"`
+	KursID           int    `json:"kurs_id"`
+}
+
+type StudentInfo struct {
+	ID       int    `json:"id"`
+	Imie     string `json:"imie"`
+	Nazwisko string `json:"nazwisko"`
+	Klasa    string `json:"klasa"`
+	Email    string `json:"email"`
 }
 
 // --- helper to invoke Python scripts ---
@@ -460,6 +501,235 @@ func loginUser(c *gin.Context) {
 	}
 }
 
+// @Summary Get courses created by a teacher
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param login query string true "Teacher login (email)"
+// @Success 200 {array} Course
+// @Router /specialtreatment/creator [get]
+func getCoursesByCreator(c *gin.Context) {
+	login := c.Query("login")
+	if login == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "login is required"})
+		return
+	}
+
+	db, err := openDB()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to open database"})
+		return
+	}
+	defer db.Close()
+
+	query := `
+		SELECT w.id, w.nazwa
+		FROM WszystkieKursy w
+		WHERE w.wlasciciel = (
+			SELECT n.id
+			FROM Nauczyciele n
+			JOIN users u ON n.user_id = u.id
+			WHERE u.email = ?
+		)
+	`
+	rows, err := db.Query(query, login)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to query courses"})
+		return
+	}
+	defer rows.Close()
+
+	var courses []Course
+	for rows.Next() {
+		var course Course
+		if err := rows.Scan(&course.ID, &course.Nazwa); err != nil {
+			log.Printf("db.Query error: %v", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to scan course"})
+			return
+		}
+		courses = append(courses, course)
+	}
+
+	c.JSON(http.StatusOK, courses)
+}
+
+// @Summary Get tasks for a specific course
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param kurs_id query int true "Course ID"
+// @Success 200 {array} Task
+// @Router /specialtreatment/tasks [get]
+func getTasksByCourse(c *gin.Context) {
+	kursID := c.Query("kurs_id")
+	if kursID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "kurs_id is required"})
+		return
+	}
+
+	db, err := openDB()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to open database"})
+		return
+	}
+	defer db.Close()
+
+	query := `
+		SELECT id, nazwa, opis, termin_realizacji, kurs_id
+		FROM KursNazwa
+		WHERE kurs_id = ?
+	`
+	rows, err := db.Query(query, kursID)
+	if err != nil {
+		log.Printf("db.Query error: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to query tasks"})
+		return
+	}
+	defer rows.Close()
+
+	var tasks []Task
+	for rows.Next() {
+		var t Task
+		if err := rows.Scan(&t.ID, &t.Nazwa, &t.Opis, &t.TerminRealizacji, &t.KursID); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to scan task"})
+			return
+		}
+		tasks = append(tasks, t)
+	}
+
+	c.JSON(http.StatusOK, tasks)
+}
+
+// @Summary Get info about a specific task
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param zadanie_id query int true "Task ID"
+// @Success 200 {object} Task
+// @Router /specialtreatment/infotask [get]
+func getTaskInfo(c *gin.Context) {
+	zadanieID := c.Query("zadanie_id")
+	if zadanieID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "zadanie_id is required"})
+		return
+	}
+
+	db, err := openDB()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to open database"})
+		return
+	}
+	defer db.Close()
+
+	query := `
+		SELECT id, nazwa, opis, termin_realizacji, kurs_id
+		FROM KursNazwa
+		WHERE id = ?
+	`
+	row := db.QueryRow(query, zadanieID)
+
+	var t Task
+	if err := row.Scan(&t.ID, &t.Nazwa, &t.Opis, &t.TerminRealizacji, &t.KursID); err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, gin.H{"error": "task not found"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to scan task"})
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, t)
+}
+
+// @Summary Get students enrolled in a specific course
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param kurs_id query int true "Course ID"
+// @Success 200 {array} StudentInfo
+// @Router /specialtreatment/kursstudents [get]
+func getStudentsByCourse(c *gin.Context) {
+	kursID := c.Query("kurs_id")
+	if kursID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "kurs_id is required"})
+		return
+	}
+
+	db, err := openDB()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to open database"})
+		return
+	}
+	defer db.Close()
+
+	query := `
+		SELECT s.id, s.imie, s.nazwisko, s.klasa, u.email
+		FROM Student s
+		JOIN uczniowie_kursy uk ON s.id = uk.uczen_id
+		JOIN users u ON s.user_id = u.id
+		WHERE uk.kurs_id = ?
+	`
+	rows, err := db.Query(query, kursID)
+	if err != nil {
+		log.Printf("db.Query error: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to query students"})
+		return
+	}
+	defer rows.Close()
+
+	var students []StudentInfo
+	for rows.Next() {
+		var s StudentInfo
+		if err := rows.Scan(&s.ID, &s.Imie, &s.Nazwisko, &s.Klasa, &s.Email); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to scan student"})
+			return
+		}
+		students = append(students, s)
+	}
+
+	c.JSON(http.StatusOK, students)
+}
+
+// @Summary Get all students
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Success 200 {array} StudentInfo
+// @Router /specialtreatment/allstudents [get]
+func getAllStudents(c *gin.Context) {
+	db, err := openDB()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to open database"})
+		return
+	}
+	defer db.Close()
+
+	query := `
+		SELECT s.id, s.imie, s.nazwisko, s.klasa, u.email
+		FROM Student s
+		JOIN users u ON s.user_id = u.id
+	`
+	rows, err := db.Query(query)
+	if err != nil {
+		log.Printf("db.Query error: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to query students"})
+		return
+	}
+	defer rows.Close()
+
+	var students []StudentInfo
+	for rows.Next() {
+		var s StudentInfo
+		if err := rows.Scan(&s.ID, &s.Imie, &s.Nazwisko, &s.Klasa, &s.Email); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to scan student"})
+			return
+		}
+		students = append(students, s)
+	}
+
+	c.JSON(http.StatusOK, students)
+}
+
 func main() {
 	r := gin.Default()
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
@@ -485,6 +755,13 @@ func main() {
 
 		auth.GET("/whoami", whoAmI)
 		auth.GET("/all", listAll)
+
+		// specialtreatment endpoints
+		auth.GET("/specialtreatment/creator", getCoursesByCreator)
+		auth.GET("/specialtreatment/tasks", getTasksByCourse)
+		auth.GET("/specialtreatment/infotask", getTaskInfo)
+		auth.GET("/specialtreatment/kursstudents", getStudentsByCourse)
+		auth.GET("/specialtreatment/allstudents", getAllStudents)
 	}
 
 	r.Run(":8080")
