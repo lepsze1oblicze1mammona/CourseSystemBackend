@@ -2,12 +2,12 @@ import sqlite3
 import bcrypt
 import argparse
 import os
-import jwt
-import datetime
+# import jwt
+# import datetime
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 db_file = os.path.join(BASE_DIR, "etc", "sn", "baza.db")
-SECRET_KEY = "tajny_klucz"
+#SECRET_KEY = "tajny_klucz"
 
 def get_db_connection():
     conn = sqlite3.connect(db_file)
@@ -160,15 +160,16 @@ def login(email, password):
         user_id, hashed, role = user
         if bcrypt.checkpw(password.encode('utf-8'), hashed.encode('utf-8')):
             # Generowanie tokena JWT
-            payload = {
-                "user_id": user_id,
-                "role": role,
-                "exp": datetime.datetime.now(datetime.UTC) + datetime.timedelta(hours=2)
-            }
-            token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
-            if isinstance(token, bytes):
-                token = token.decode()
-            print(f"{role} {user_id} {token}")
+            # payload = {
+            #     "user_id": user_id,
+            #     "role": role,
+            #     "exp": datetime.datetime.now(datetime.UTC) + datetime.timedelta(hours=2)
+            # }
+            # token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
+            # if isinstance(token, bytes):
+            #     token = token.decode()
+            # print(f"{role} {user_id} {token}")
+            print(f'{role} {user_id}')
         else:
             print("Nieprawidłowe hasło!")
             
