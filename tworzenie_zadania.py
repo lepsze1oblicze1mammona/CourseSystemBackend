@@ -5,7 +5,7 @@ import argparse
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 db_file = os.path.join(BASE_DIR, "etc", "sn", "baza.db")
 
-def stworz_zadanie(nazwa_kursu, nazwa_zadania, termin):
+def stworz_zadanie(nazwa_kursu, nazwa_zadania, opis, termin):
     conn = sqlite3.connect(db_file)
     c = conn.cursor()
     
@@ -18,9 +18,9 @@ def stworz_zadanie(nazwa_kursu, nazwa_zadania, termin):
         return
     kurs_id = row[0]
     
-    # Dodaj zadanie do bazy
-    c.execute("INSERT INTO KursNazwa (nazwa, termin_realizacji, kurs_id) VALUES (?, ?, ?)", 
-              (nazwa_zadania, termin, kurs_id))
+    # Dodaj zadanie do bazy z opisem
+    c.execute("INSERT INTO KursNazwa (nazwa, opis, termin_realizacji, kurs_id) VALUES (?, ?, ?, ?)", 
+              (nazwa_zadania, opis, termin, kurs_id))
     
     # Utwórz folder zadania
     sciezka = os.path.join(BASE_DIR, "etc", "sn", "Kursy", nazwa_kursu, "Zadania", nazwa_zadania)
@@ -34,8 +34,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Tworzenie nowego zadania")
     parser.add_argument('--nazwa_kursu', required=True, help="Nazwa kursu")
     parser.add_argument('--nazwa_zadania', required=True, help="Nazwa zadania")
+    parser.add_argument('--opis', required=True, help="Opis zadania")
     parser.add_argument('--termin', required=True, help="Termin realizacji zadania (YYYY-MM-DD)")
     
     args = parser.parse_args()
     
-    stworz_zadanie(args.nazwa_kursu, args.nazwa_zadania, args.termin)
+    stworz_zadanie(args.nazwa_kursu, args.nazwa_zadania, args.opis, args.termin)
