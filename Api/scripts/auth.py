@@ -2,9 +2,12 @@ import sqlite3
 import bcrypt
 import argparse
 import os
+# import jwt
+# import datetime
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 db_file = os.path.join(BASE_DIR, "baza.db")
+#SECRET_KEY = "tajny_klucz"
 
 def get_db_connection():
     conn = sqlite3.connect(db_file)
@@ -59,7 +62,7 @@ def create_tables():
         )
     ''')
 
-    # Tabela ZADANIA
+    # Tabela KursNazwa
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS KursNazwa (
             id INTEGER PRIMARY KEY,
@@ -88,6 +91,7 @@ def create_tables():
         CREATE TABLE IF NOT EXISTS uczniowie_kursy (
             uczen_id INTEGER,
             kurs_id INTEGER,
+            PRIMARY KEY (uczen_id, kurs_id),
             FOREIGN KEY (uczen_id) REFERENCES Student(id),
             FOREIGN KEY (kurs_id) REFERENCES WszystkieKursy(id)
         )
@@ -150,12 +154,22 @@ def login(email, password):
         user = cursor.fetchone()
         
         if not user:
-            print("Nieprawidlowy email!")
+            print("Nieprawidłowy email!")
             return
         
         user_id, hashed, role = user
         if bcrypt.checkpw(password.encode('utf-8'), hashed.encode('utf-8')):
-            print(f"Zalogowano jako {role}! ID uzytkownika: {user_id}")
+            # Generowanie tokena JWT
+            # payload = {
+            #     "user_id": user_id,
+            #     "role": role,
+            #     "exp": datetime.datetime.now(datetime.UTC) + datetime.timedelta(hours=2)
+            # }
+            # token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
+            # if isinstance(token, bytes):
+            #     token = token.decode()
+            # print(f"{role} {user_id} {token}")
+            print(f'{role} {user_id}')
         else:
             print("Nieprawidłowe hasło!")
             
@@ -165,7 +179,7 @@ def login(email, password):
         conn.close()
 
 if __name__ == "__main__":
-    #create_tables() 
+    create_tables() 
     
     parser = argparse.ArgumentParser(description="System rejestracji i logowania")
     subparsers = parser.add_subparsers(dest='command')
@@ -195,4 +209,3 @@ if __name__ == "__main__":
         login(args.email, args.password)
     else:
         parser.print_help()
-    

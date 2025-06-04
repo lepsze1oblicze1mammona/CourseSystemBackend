@@ -23,12 +23,15 @@ definitions:
         type: string
       nazwa_zadania:
         type: string
+      opis:
+        type: string
       termin:
         description: YYYY-MM-DD
         type: string
     required:
     - nazwa_kursu
     - nazwa_zadania
+    - opis
     - termin
     type: object
   main.CreateCourseReq:

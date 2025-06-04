@@ -701,6 +701,7 @@
             "required": [
                 "nazwa_kursu",
                 "nazwa_zadania",
+                "opis",
                 "termin"
             ],
             "properties": {
@@ -708,6 +709,9 @@
                     "type": "string"
                 },
                 "nazwa_zadania": {
+                    "type": "string"
+                },
+                "opis": {
                     "type": "string"
                 },
                 "termin": {

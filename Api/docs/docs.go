@@ -707,6 +707,7 @@ const docTemplate = `{
             "required": [
                 "nazwa_kursu",
                 "nazwa_zadania",
+                "opis",
                 "termin"
             ],
             "properties": {
@@ -714,6 +715,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "nazwa_zadania": {
+                    "type": "string"
+                },
+                "opis": {
                     "type": "string"
                 },
                 "termin": {

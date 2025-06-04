@@ -80,7 +80,7 @@ func AuthMiddleware() gin.HandlerFunc {
 
 // Checking proper loging to not capture JWT
 func isLoginSuccess(msg string) bool {
-	re := regexp.MustCompile(`^Zalogowano jako (student|nauczyciel|teacher)! ID uzytkownika: \d+$`)
+	re := regexp.MustCompile(`^(?:student|teacher|nauczyciel)$`)
 	return re.MatchString(msg)
 }
 
@@ -110,6 +110,7 @@ type CreateCourseReq struct {
 type CreateAssignmentReq struct {
 	Kurs    string `json:"nazwa_kursu" binding:"required"`
 	Zadanie string `json:"nazwa_zadania" binding:"required"`
+	Opis    string `json:"opis" binding:"required"`
 	Termin  string `json:"termin" binding:"required"` // YYYY-MM-DD
 }
 
@@ -235,13 +236,17 @@ func createCourse(c *gin.Context) {
 // @Router /zadanie [post]
 func createAssignment(c *gin.Context) {
 	var req CreateAssignmentReq
-	if c.ShouldBindJSON(&req) == nil {
-		runScript(c, "tworzenie_zadania.py",
-			"--nazwa_kursu", req.Kurs,
-			"--nazwa_zadania", req.Zadanie,
-			"--termin", req.Termin,
-		)
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
+
+	runScript(c, "tworzenie_zadania.py",
+		"--nazwa_kursu", req.Kurs,
+		"--nazwa_zadania", req.Zadanie,
+		"--opis", req.Opis,
+		"--termin", req.Termin,
+	)
 }
 
 // @Summary Rename course
@@ -474,29 +479,40 @@ func loginUser(c *gin.Context) {
 		return
 	}
 
-	out, err := exec.Command("python", "scripts/auth.py", "login",
-		"--email", req.Email, "--password", req.Password,
+	outBytes, err := exec.Command(
+		"python", "scripts/auth.py", "login",
+		"--email", req.Email,
+		"--password", req.Password,
 	).CombinedOutput()
+	output := strings.TrimSpace(string(outBytes))
+
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": strings.TrimSpace(string(out))})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": output})
 		return
 	}
 
-	// on success, issue JWT
-	if isLoginSuccess(strings.TrimSpace(string(out))) {
-		token, err := generateToken(req.Email)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "could not generate token"})
-			return
-		}
+	parts := strings.Split(output, " ")
+	if len(parts) != 2 {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "unexpected auth response"})
+		return
+	}
+	role, userID := parts[0], parts[1]
 
+	token, err := generateToken(req.Email)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not generate token"})
+		return
+	}
+
+	if isLoginSuccess(role) {
 		c.JSON(http.StatusOK, gin.H{
-			"message": strings.TrimSpace(string(out)),
+			"role":    role,
+			"user_id": userID,
 			"token":   token,
 		})
 	} else {
 		c.JSON(http.StatusOK, gin.H{
-			"message": strings.TrimSpace(string(out)),
+			"message": role + userID,
 		})
 	}
 }
