@@ -16,11 +16,16 @@ def stworz_kurs(nazwa, wlasciciel_login):
         conn.close()
         return
 
-    # Pobierz id właściciela po loginie
-    c.execute("SELECT id FROM users WHERE email=?", (wlasciciel_login,))
+    # Pobierz id nauczyciela po emailu (loginie)
+    c.execute("""
+        SELECT Nauczyciele.id
+        FROM Nauczyciele
+        JOIN users ON Nauczyciele.user_id = users.id
+        WHERE users.email = ?
+    """, (wlasciciel_login,))
     row = c.fetchone()
     if not row:
-        print(f"Użytkownik o loginie '{wlasciciel_login}' nie istnieje!")
+        print(f"Nauczyciel o loginie '{wlasciciel_login}' nie istnieje!")
         conn.close()
         return
     wlasciciel_id = row[0]
