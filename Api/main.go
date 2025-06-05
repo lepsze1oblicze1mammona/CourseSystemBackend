@@ -97,6 +97,7 @@ func getDBPath() string {
 
 func openDB() (*sql.DB, error) {
 	dbPath := getDBPath()
+	fmt.Println(dbPath)
 	return sql.Open("sqlite3", dbPath)
 }
 
@@ -544,7 +545,7 @@ func getCoursesByCreator(c *gin.Context) {
 		WHERE w.wlasciciel = (
 			SELECT n.id
 			FROM Nauczyciele n
-			JOIN users u ON n.user_id = u.id
+			JOIN users u ON n.user_id= u.id
 			WHERE u.email = ?
 		)
 	`
