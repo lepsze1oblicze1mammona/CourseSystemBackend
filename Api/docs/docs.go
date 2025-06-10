@@ -25,6 +25,9 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "ListAll"
+                ],
                 "summary": "List all tables",
                 "responses": {
                     "200": {
@@ -49,6 +52,9 @@ const docTemplate = `{
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "CourseAction"
                 ],
                 "summary": "Rename course",
                 "parameters": [
@@ -83,6 +89,9 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "CourseAction"
+                ],
                 "summary": "Create course",
                 "parameters": [
                     {
@@ -115,6 +124,9 @@ const docTemplate = `{
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "CourseAction"
                 ],
                 "summary": "Delete course",
                 "parameters": [
@@ -151,6 +163,9 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "CourseAction"
+                ],
                 "summary": "Assign user to course",
                 "parameters": [
                     {
@@ -186,6 +201,9 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "CourseAction"
+                ],
                 "summary": "Remove user from course",
                 "parameters": [
                     {
@@ -215,6 +233,9 @@ const docTemplate = `{
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "Registry"
                 ],
                 "summary": "Login user",
                 "parameters": [
@@ -248,6 +269,9 @@ const docTemplate = `{
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "Registry"
                 ],
                 "summary": "Register user",
                 "parameters": [
@@ -284,6 +308,9 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "SpecialTreatment"
+                ],
                 "summary": "Get all students",
                 "responses": {
                     "200": {
@@ -310,6 +337,9 @@ const docTemplate = `{
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "SpecialTreatment"
                 ],
                 "summary": "Get courses created by a teacher",
                 "parameters": [
@@ -347,6 +377,9 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "SpecialTreatment"
+                ],
                 "summary": "Get info about a specific task",
                 "parameters": [
                     {
@@ -380,6 +413,9 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "SpecialTreatment"
+                ],
                 "summary": "Get students enrolled in a specific course",
                 "parameters": [
                     {
@@ -403,6 +439,45 @@ const docTemplate = `{
                 }
             }
         },
+        "/specialtreatment/studentcourses": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SpecialTreatment"
+                ],
+                "summary": "Get courses for a specific student by login",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Student login (email)",
+                        "name": "login",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/main.StudentCourse"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/specialtreatment/tasks": {
             "get": {
                 "security": [
@@ -415,6 +490,9 @@ const docTemplate = `{
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "SpecialTreatment"
                 ],
                 "summary": "Get tasks for a specific course",
                 "parameters": [
@@ -452,6 +530,9 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "GetInfo"
+                ],
                 "summary": "Who am I",
                 "parameters": [
                     {
@@ -484,6 +565,9 @@ const docTemplate = `{
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "AssingmentAction"
                 ],
                 "summary": "Reschedule assignment",
                 "parameters": [
@@ -518,6 +602,9 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "AssingmentAction"
+                ],
                 "summary": "Create assignment",
                 "parameters": [
                     {
@@ -550,6 +637,9 @@ const docTemplate = `{
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "AssingmentAction"
                 ],
                 "summary": "Delete assignment",
                 "parameters": [
@@ -585,6 +675,9 @@ const docTemplate = `{
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "AssingmentAction"
                 ],
                 "summary": "Check submission",
                 "parameters": [
@@ -632,6 +725,9 @@ const docTemplate = `{
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "AssingmentAction"
                 ],
                 "summary": "Submit assignment",
                 "parameters": [
@@ -870,6 +966,20 @@ const docTemplate = `{
                 },
                 "output": {
                     "type": "string"
+                }
+            }
+        },
+        "main.StudentCourse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "nazwa": {
+                    "type": "string"
+                },
+                "wlasciciel": {
+                    "type": "integer"
                 }
             }
         },

@@ -189,6 +189,12 @@ type StudentInfo struct {
 	Email    string `json:"email"`
 }
 
+type StudentCourse struct {
+	ID         int    `json:"id"`
+	Nazwa      string `json:"nazwa"`
+	Wlasciciel int    `json:"wlasciciel"`
+}
+
 // --- helper to invoke Python scripts ---
 
 func runScript(c *gin.Context, script string, args ...string) {
@@ -211,6 +217,7 @@ func runScript(c *gin.Context, script string, args ...string) {
 
 // --- Handlers ---
 
+// @Tags   CourseAction
 // @Summary Create course
 // @Security BearerAuth
 // @Accept json
@@ -228,6 +235,7 @@ func createCourse(c *gin.Context) {
 	}
 }
 
+// @Tags   AssingmentAction
 // @Summary Create assignment
 // @Security BearerAuth
 // @Accept json
@@ -250,6 +258,7 @@ func createAssignment(c *gin.Context) {
 	)
 }
 
+// @Tags   CourseAction
 // @Summary Rename course
 // @Security BearerAuth
 // @Accept json
@@ -267,6 +276,7 @@ func renameCourse(c *gin.Context) {
 	}
 }
 
+// @Tags   AssingmentAction
 // @Summary Reschedule assignment
 // @Security BearerAuth
 // @Accept json
@@ -285,6 +295,7 @@ func rescheduleAssignment(c *gin.Context) {
 	}
 }
 
+// @Tags   CourseAction
 // @Summary Delete course
 // @Security BearerAuth
 // @Accept json
@@ -301,6 +312,7 @@ func deleteCourse(c *gin.Context) {
 	}
 }
 
+// @Tags   AssingmentAction
 // @Summary Delete assignment
 // @Security BearerAuth
 // @Accept json
@@ -318,6 +330,7 @@ func deleteAssignment(c *gin.Context) {
 	}
 }
 
+// @Tags   AssingmentAction
 // @Summary Submit assignment
 // @Security BearerAuth
 // @Accept multipart/form-data
@@ -350,6 +363,7 @@ func submitAssignment(c *gin.Context) {
 	}
 }
 
+// @Tags   AssingmentAction
 // @Summary Check submission
 // @Security BearerAuth
 // @Accept json
@@ -370,6 +384,7 @@ func checkSubmission(c *gin.Context) {
 	}
 }
 
+// @Tags   CourseAction
 // @Summary Assign user to course
 // @Security BearerAuth
 // @Accept json
@@ -387,6 +402,7 @@ func assignUserToCourse(c *gin.Context) {
 	}
 }
 
+// @Tags   CourseAction
 // @Summary Remove user from course
 // @Security BearerAuth
 // @Accept json
@@ -404,6 +420,7 @@ func removeUserFromCourse(c *gin.Context) {
 	}
 }
 
+// @Tags   GetInfo
 // @Summary Who am I
 // @Security BearerAuth
 // @Accept json
@@ -420,6 +437,7 @@ func whoAmI(c *gin.Context) {
 	runScript(c, "kim_jestem.py", "--login", login)
 }
 
+// @Tags   ListAll
 // @Summary List all tables
 // @Security BearerAuth
 // @Produce json
@@ -444,6 +462,7 @@ func listAll(c *gin.Context) {
 	c.Data(http.StatusOK, "application/json; charset=utf-8", out)
 }
 
+// @Tags   Registry
 // @Summary Register user
 // @Accept json
 // @Produce json
@@ -467,6 +486,7 @@ func registerUser(c *gin.Context) {
 	}
 }
 
+// @Tags   Registry
 // @Summary Login user
 // @Accept json
 // @Produce json
@@ -518,6 +538,7 @@ func loginUser(c *gin.Context) {
 	}
 }
 
+// @Tags   SpecialTreatment
 // @Summary Get courses created by a teacher
 // @Security BearerAuth
 // @Accept json
@@ -570,6 +591,7 @@ func getCoursesByCreator(c *gin.Context) {
 	c.JSON(http.StatusOK, courses)
 }
 
+// @Tags   SpecialTreatment
 // @Summary Get tasks for a specific course
 // @Security BearerAuth
 // @Accept json
@@ -617,6 +639,7 @@ func getTasksByCourse(c *gin.Context) {
 	c.JSON(http.StatusOK, tasks)
 }
 
+// @Tags   SpecialTreatment
 // @Summary Get info about a specific task
 // @Security BearerAuth
 // @Accept json
@@ -658,6 +681,7 @@ func getTaskInfo(c *gin.Context) {
 	c.JSON(http.StatusOK, t)
 }
 
+// @Tags   SpecialTreatment
 // @Summary Get students enrolled in a specific course
 // @Security BearerAuth
 // @Accept json
@@ -707,6 +731,7 @@ func getStudentsByCourse(c *gin.Context) {
 	c.JSON(http.StatusOK, students)
 }
 
+// @Tags   SpecialTreatment
 // @Summary Get all students
 // @Security BearerAuth
 // @Accept json
@@ -747,6 +772,57 @@ func getAllStudents(c *gin.Context) {
 	c.JSON(http.StatusOK, students)
 }
 
+// @Tags   SpecialTreatment
+// @Summary Get courses for a specific student by login
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param login query string true "Student login (email)"
+// @Success 200 {array} StudentCourse
+// @Router /specialtreatment/studentcourses [get]
+func getCoursesByStudent(c *gin.Context) {
+	login := c.Query("login")
+	if login == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "login is required"})
+		return
+	}
+
+	db, err := openDB()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to open database"})
+		return
+	}
+	defer db.Close()
+
+	query := `
+        SELECT wk.id, wk.nazwa, wk.wlasciciel
+        FROM users u
+        JOIN Student s ON s.user_id = u.id
+        JOIN uczniowie_kursy uk ON uk.uczen_id = s.id
+        JOIN WszystkieKursy wk ON wk.id = uk.kurs_id
+        WHERE u.email = ?
+    `
+	rows, err := db.Query(query, login)
+	if err != nil {
+		log.Printf("db.Query error: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to query courses"})
+		return
+	}
+	defer rows.Close()
+
+	var courses []StudentCourse
+	for rows.Next() {
+		var sc StudentCourse
+		if err := rows.Scan(&sc.ID, &sc.Nazwa, &sc.Wlasciciel); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to scan course"})
+			return
+		}
+		courses = append(courses, sc)
+	}
+
+	c.JSON(http.StatusOK, courses)
+}
+
 func main() {
 	r := gin.Default()
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
@@ -779,6 +855,7 @@ func main() {
 		auth.GET("/specialtreatment/infotask", getTaskInfo)
 		auth.GET("/specialtreatment/kursstudents", getStudentsByCourse)
 		auth.GET("/specialtreatment/allstudents", getAllStudents)
+		auth.GET("/specialtreatment/studentcourses", getCoursesByStudent)
 	}
 
 	r.Run(":8080")

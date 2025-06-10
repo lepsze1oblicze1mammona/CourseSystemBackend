@@ -133,6 +133,15 @@ definitions:
       output:
         type: string
     type: object
+  main.StudentCourse:
+    properties:
+      id:
+        type: integer
+      nazwa:
+        type: string
+      wlasciciel:
+        type: integer
+    type: object
   main.StudentInfo:
     properties:
       email:
@@ -179,6 +188,8 @@ paths:
       security:
       - BearerAuth: []
       summary: List all tables
+      tags:
+      - ListAll
   /kurs:
     delete:
       consumes:
@@ -200,6 +211,8 @@ paths:
       security:
       - BearerAuth: []
       summary: Delete course
+      tags:
+      - CourseAction
     post:
       consumes:
       - application/json
@@ -220,6 +233,8 @@ paths:
       security:
       - BearerAuth: []
       summary: Create course
+      tags:
+      - CourseAction
     put:
       consumes:
       - application/json
@@ -240,6 +255,8 @@ paths:
       security:
       - BearerAuth: []
       summary: Rename course
+      tags:
+      - CourseAction
   /kurs/assign:
     post:
       consumes:
@@ -261,6 +278,8 @@ paths:
       security:
       - BearerAuth: []
       summary: Assign user to course
+      tags:
+      - CourseAction
   /kurs/remove:
     delete:
       consumes:
@@ -282,6 +301,8 @@ paths:
       security:
       - BearerAuth: []
       summary: Remove user from course
+      tags:
+      - CourseAction
   /login:
     post:
       consumes:
@@ -303,6 +324,8 @@ paths:
               type: string
             type: object
       summary: Login user
+      tags:
+      - Registry
   /register:
     post:
       consumes:
@@ -322,6 +345,8 @@ paths:
           schema:
             $ref: '#/definitions/main.ScriptResponse'
       summary: Register user
+      tags:
+      - Registry
   /specialtreatment/allstudents:
     get:
       consumes:
@@ -338,6 +363,8 @@ paths:
       security:
       - BearerAuth: []
       summary: Get all students
+      tags:
+      - SpecialTreatment
   /specialtreatment/creator:
     get:
       consumes:
@@ -360,6 +387,8 @@ paths:
       security:
       - BearerAuth: []
       summary: Get courses created by a teacher
+      tags:
+      - SpecialTreatment
   /specialtreatment/infotask:
     get:
       consumes:
@@ -380,6 +409,8 @@ paths:
       security:
       - BearerAuth: []
       summary: Get info about a specific task
+      tags:
+      - SpecialTreatment
   /specialtreatment/kursstudents:
     get:
       consumes:
@@ -402,6 +433,32 @@ paths:
       security:
       - BearerAuth: []
       summary: Get students enrolled in a specific course
+      tags:
+      - SpecialTreatment
+  /specialtreatment/studentcourses:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Student login (email)
+        in: query
+        name: login
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/main.StudentCourse'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: Get courses for a specific student by login
+      tags:
+      - SpecialTreatment
   /specialtreatment/tasks:
     get:
       consumes:
@@ -424,6 +481,8 @@ paths:
       security:
       - BearerAuth: []
       summary: Get tasks for a specific course
+      tags:
+      - SpecialTreatment
   /whoami:
     get:
       consumes:
@@ -444,6 +503,8 @@ paths:
       security:
       - BearerAuth: []
       summary: Who am I
+      tags:
+      - GetInfo
   /zadanie:
     delete:
       consumes:
@@ -465,6 +526,8 @@ paths:
       security:
       - BearerAuth: []
       summary: Delete assignment
+      tags:
+      - AssingmentAction
     post:
       consumes:
       - application/json
@@ -485,6 +548,8 @@ paths:
       security:
       - BearerAuth: []
       summary: Create assignment
+      tags:
+      - AssingmentAction
     put:
       consumes:
       - application/json
@@ -505,6 +570,8 @@ paths:
       security:
       - BearerAuth: []
       summary: Reschedule assignment
+      tags:
+      - AssingmentAction
   /zadanie/check:
     get:
       consumes:
@@ -535,6 +602,8 @@ paths:
       security:
       - BearerAuth: []
       summary: Check submission
+      tags:
+      - AssingmentAction
   /zadanie/upload:
     post:
       consumes:
@@ -570,6 +639,8 @@ paths:
       security:
       - BearerAuth: []
       summary: Submit assignment
+      tags:
+      - AssingmentAction
 securityDefinitions:
   BearerAuth:
     description: 'Enter your JWT token as: Bearer <token>'
