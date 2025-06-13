@@ -32,6 +32,7 @@ def stworz_kurs(nazwa, wlasciciel_login):
 
     # Dodaj kurs do bazy
     c.execute("INSERT INTO WszystkieKursy (nazwa, wlasciciel) VALUES (?, ?)", (nazwa, wlasciciel_id))
+    kurs_id = c.lastrowid  # Pobierz id nowo utworzonego kursu
     
     # Utwórz folder kursu
     sciezka = os.path.join(BASE_DIR, "etc", "sn", "Kursy", nazwa)
@@ -39,7 +40,7 @@ def stworz_kurs(nazwa, wlasciciel_login):
     
     conn.commit()
     conn.close()
-    print(f"Kurs '{nazwa}' został utworzony. Właściciel: {wlasciciel_login}")
+    print(f"Kurs '{nazwa}' został utworzony. ID kursu: {kurs_id}, Właściciel: {wlasciciel_login}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Tworzenie nowego kursu")

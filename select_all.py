@@ -32,15 +32,16 @@ def fetch_table_as_json(table_name, kursy, studenci, uzytkownicy, nauczyciele):
         if table_name == "uczniowie_kursy":
             if "uczen_id" in row_dict:
                 row_dict["student_login"] = studenci.get(row_dict["uczen_id"], row_dict["uczen_id"])
+            # Zamiast nazwy kursu, wyświetl id kursu
             if "kurs_id" in row_dict:
-                row_dict["nazwa_kursu"] = kursy.get(row_dict["kurs_id"], row_dict["kurs_id"])
+                row_dict["kurs_id"] = row_dict["kurs_id"]
         if table_name == "WszystkieKursy":
             if "wlasciciel" in row_dict:
                 # Pobierz email nauczyciela po id z tabeli Nauczyciele
                 row_dict["wlasciciel_login"] = nauczyciele.get(row_dict["wlasciciel"], row_dict["wlasciciel"])
         if table_name == "KursNazwa":
             if "kurs_id" in row_dict:
-                row_dict["nazwa_kursu"] = kursy.get(row_dict["kurs_id"], row_dict["kurs_id"])
+                row_dict["kurs_id"] = row_dict["kurs_id"]
         result.append(row_dict)
     conn.close()
     return result
