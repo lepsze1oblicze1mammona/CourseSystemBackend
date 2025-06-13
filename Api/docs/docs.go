@@ -59,7 +59,7 @@ const docTemplate = `{
                 "summary": "Rename course",
                 "parameters": [
                     {
-                        "description": "Rename course",
+                        "description": "Rename course request",
                         "name": "req",
                         "in": "body",
                         "required": true,
@@ -131,7 +131,7 @@ const docTemplate = `{
                 "summary": "Delete course",
                 "parameters": [
                     {
-                        "description": "Delete course",
+                        "description": "Delete course request",
                         "name": "req",
                         "in": "body",
                         "required": true,
@@ -169,7 +169,7 @@ const docTemplate = `{
                 "summary": "Assign user to course",
                 "parameters": [
                     {
-                        "description": "Assign user",
+                        "description": "Assign user request",
                         "name": "req",
                         "in": "body",
                         "required": true,
@@ -189,7 +189,7 @@ const docTemplate = `{
             }
         },
         "/kurs/remove": {
-            "delete": {
+            "post": {
                 "security": [
                     {
                         "BearerAuth": []
@@ -207,7 +207,7 @@ const docTemplate = `{
                 "summary": "Remove user from course",
                 "parameters": [
                     {
-                        "description": "Remove user",
+                        "description": "Remove user request",
                         "name": "req",
                         "in": "body",
                         "required": true,
@@ -567,12 +567,12 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "AssingmentAction"
+                    "AssignmentAction"
                 ],
                 "summary": "Reschedule assignment",
                 "parameters": [
                     {
-                        "description": "Reschedule assingment",
+                        "description": "Reschedule assignment request",
                         "name": "req",
                         "in": "body",
                         "required": true,
@@ -603,12 +603,12 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "AssingmentAction"
+                    "AssignmentAction"
                 ],
                 "summary": "Create assignment",
                 "parameters": [
                     {
-                        "description": "Create course assingment",
+                        "description": "Create assignment request",
                         "name": "req",
                         "in": "body",
                         "required": true,
@@ -639,12 +639,12 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "AssingmentAction"
+                    "AssignmentAction"
                 ],
                 "summary": "Delete assignment",
                 "parameters": [
                     {
-                        "description": "Delete assingment",
+                        "description": "Delete assignment request",
                         "name": "req",
                         "in": "body",
                         "required": true,
@@ -677,7 +677,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "AssingmentAction"
+                    "AssignmentAction"
                 ],
                 "summary": "Check submission",
                 "parameters": [
@@ -689,9 +689,9 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "description": "Course name",
-                        "name": "nazwa_kursu",
+                        "type": "integer",
+                        "description": "Course ID",
+                        "name": "kurs_id",
                         "in": "query",
                         "required": true
                     },
@@ -727,7 +727,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "AssingmentAction"
+                    "AssignmentAction"
                 ],
                 "summary": "Submit assignment",
                 "parameters": [
@@ -739,9 +739,9 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "description": "Course name",
-                        "name": "nazwa_kursu",
+                        "type": "integer",
+                        "description": "Course ID",
+                        "name": "kurs_id",
                         "in": "formData",
                         "required": true
                     },
@@ -775,12 +775,12 @@ const docTemplate = `{
         "main.AssignUserReq": {
             "type": "object",
             "required": [
-                "nazwa_kursu",
+                "kurs_id",
                 "student_login"
             ],
             "properties": {
-                "nazwa_kursu": {
-                    "type": "string"
+                "kurs_id": {
+                    "type": "integer"
                 },
                 "student_login": {
                     "type": "string"
@@ -801,14 +801,14 @@ const docTemplate = `{
         "main.CreateAssignmentReq": {
             "type": "object",
             "required": [
-                "nazwa_kursu",
+                "kurs_id",
                 "nazwa_zadania",
                 "opis",
                 "termin"
             ],
             "properties": {
-                "nazwa_kursu": {
-                    "type": "string"
+                "kurs_id": {
+                    "type": "integer"
                 },
                 "nazwa_zadania": {
                     "type": "string"
@@ -840,12 +840,12 @@ const docTemplate = `{
         "main.DeleteAssignmentReq": {
             "type": "object",
             "required": [
-                "nazwa_kursu",
+                "kurs_id",
                 "nazwa_zadania"
             ],
             "properties": {
-                "nazwa_kursu": {
-                    "type": "string"
+                "kurs_id": {
+                    "type": "integer"
                 },
                 "nazwa_zadania": {
                     "type": "string"
@@ -855,11 +855,11 @@ const docTemplate = `{
         "main.DeleteCourseReq": {
             "type": "object",
             "required": [
-                "nazwa"
+                "kurs_id"
             ],
             "properties": {
-                "nazwa": {
-                    "type": "string"
+                "kurs_id": {
+                    "type": "integer"
                 }
             }
         },
@@ -911,12 +911,12 @@ const docTemplate = `{
         "main.RemoveUserReq": {
             "type": "object",
             "required": [
-                "nazwa_kursu",
+                "kurs_id",
                 "student_login"
             ],
             "properties": {
-                "nazwa_kursu": {
-                    "type": "string"
+                "kurs_id": {
+                    "type": "integer"
                 },
                 "student_login": {
                     "type": "string"
@@ -926,14 +926,14 @@ const docTemplate = `{
         "main.RenameCourseReq": {
             "type": "object",
             "required": [
-                "nowa_nazwa",
-                "stara_nazwa"
+                "kurs_id",
+                "nowa_nazwa"
             ],
             "properties": {
-                "nowa_nazwa": {
-                    "type": "string"
+                "kurs_id": {
+                    "type": "integer"
                 },
-                "stara_nazwa": {
+                "nowa_nazwa": {
                     "type": "string"
                 }
             }
@@ -941,13 +941,13 @@ const docTemplate = `{
         "main.RescheduleAssignmentReq": {
             "type": "object",
             "required": [
-                "nazwa_kursu",
+                "kurs_id",
                 "nazwa_zadania",
                 "nowy_termin"
             ],
             "properties": {
-                "nazwa_kursu": {
-                    "type": "string"
+                "kurs_id": {
+                    "type": "integer"
                 },
                 "nazwa_zadania": {
                     "type": "string"

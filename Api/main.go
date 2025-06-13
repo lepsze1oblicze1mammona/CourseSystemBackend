@@ -109,47 +109,47 @@ type CreateCourseReq struct {
 }
 
 type CreateAssignmentReq struct {
-	Kurs    string `json:"nazwa_kursu" binding:"required"`
+	KursID  int    `json:"kurs_id" binding:"required"`
 	Zadanie string `json:"nazwa_zadania" binding:"required"`
 	Opis    string `json:"opis" binding:"required"`
 	Termin  string `json:"termin" binding:"required"` // YYYY-MM-DD
 }
 
 type RenameCourseReq struct {
-	StaraNazwa string `json:"stara_nazwa" binding:"required"`
-	NowaNazwa  string `json:"nowa_nazwa" binding:"required"`
+	KursID    int    `json:"kurs_id" binding:"required"`
+	NowaNazwa string `json:"nowa_nazwa" binding:"required"`
 }
 
 type RescheduleAssignmentReq struct {
-	Kurs    string `json:"nazwa_kursu" binding:"required"`
+	KursID  int    `json:"kurs_id" binding:"required"`
 	Zadanie string `json:"nazwa_zadania" binding:"required"`
 	Termin  string `json:"nowy_termin" binding:"required"` // YYYY-MM-DD
 }
 
 type DeleteCourseReq struct {
-	Nazwa string `json:"nazwa" binding:"required"`
+	KursID int `json:"kurs_id" binding:"required"`
 }
 
 type DeleteAssignmentReq struct {
-	Kurs    string `json:"nazwa_kursu" binding:"required"`
+	KursID  int    `json:"kurs_id" binding:"required"`
 	Zadanie string `json:"nazwa_zadania" binding:"required"`
 }
 
 type SubmitAssignmentForm struct {
 	StudentLogin string `form:"student_login" binding:"required"`
-	Kurs         string `form:"nazwa_kursu" binding:"required"`
+	KursID       int    `form:"kurs_id" binding:"required"`
 	Zadanie      string `form:"nazwa_zadania" binding:"required"`
 }
 
 type CheckSubmissionQuery struct {
 	StudentLogin string `form:"student_login" binding:"required"`
-	Kurs         string `form:"nazwa_kursu" binding:"required"`
+	KursID       int    `form:"kurs_id" binding:"required"`
 	Zadanie      string `form:"nazwa_zadania" binding:"required"`
 }
 
 type AssignUserReq struct {
 	StudentLogin string `json:"student_login" binding:"required"`
-	Kurs         string `json:"nazwa_kursu" binding:"required"`
+	KursID       int    `json:"kurs_id" binding:"required"`
 }
 
 type RemoveUserReq = AssignUserReq
@@ -227,20 +227,22 @@ func runScript(c *gin.Context, script string, args ...string) {
 // @Router /kurs [post]
 func createCourse(c *gin.Context) {
 	var req CreateCourseReq
-	if c.ShouldBindJSON(&req) == nil {
-		runScript(c, "tworzenie_kursu.py",
-			"--nazwa_kursu", req.Nazwa,
-			"--wlasciciel_login", req.WlascicielLogin,
-		)
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
+	runScript(c, "tworzenie_kursu.py",
+		"--nazwa_kursu", req.Nazwa,
+		"--wlasciciel_login", req.WlascicielLogin,
+	)
 }
 
-// @Tags   AssingmentAction
+// @Tags   AssignmentAction
 // @Summary Create assignment
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Param req body CreateAssignmentReq true "Create course assingment"
+// @Param req body CreateAssignmentReq true "Create assignment request"
 // @Success 200 {object} ScriptResponse
 // @Router /zadanie [post]
 func createAssignment(c *gin.Context) {
@@ -251,7 +253,7 @@ func createAssignment(c *gin.Context) {
 	}
 
 	runScript(c, "tworzenie_zadania.py",
-		"--nazwa_kursu", req.Kurs,
+		"--kurs_id", fmt.Sprint(req.KursID),
 		"--nazwa_zadania", req.Zadanie,
 		"--opis", req.Opis,
 		"--termin", req.Termin,
@@ -263,36 +265,42 @@ func createAssignment(c *gin.Context) {
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Param req body RenameCourseReq true "Rename course"
+// @Param req body RenameCourseReq true "Rename course request"
 // @Success 200 {object} ScriptResponse
 // @Router /kurs [put]
 func renameCourse(c *gin.Context) {
 	var req RenameCourseReq
-	if c.ShouldBindJSON(&req) == nil {
-		runScript(c, "modyfikacja_kursu.py",
-			"--stara_nazwa", req.StaraNazwa,
-			"--nowa_nazwa", req.NowaNazwa,
-		)
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
+
+	runScript(c, "modyfikacja_kursu.py",
+		"--kurs_id", fmt.Sprint(req.KursID),
+		"--nowa_nazwa", req.NowaNazwa,
+	)
 }
 
-// @Tags   AssingmentAction
+// @Tags   AssignmentAction
 // @Summary Reschedule assignment
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Param req body RescheduleAssignmentReq true "Reschedule assingment"
+// @Param req body RescheduleAssignmentReq true "Reschedule assignment request"
 // @Success 200 {object} ScriptResponse
 // @Router /zadanie [put]
 func rescheduleAssignment(c *gin.Context) {
 	var req RescheduleAssignmentReq
-	if c.ShouldBindJSON(&req) == nil {
-		runScript(c, "modyfikacja_zadania.py",
-			"--nazwa_kursu", req.Kurs,
-			"--nazwa_zadania", req.Zadanie,
-			"--nowy_termin", req.Termin,
-		)
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
+
+	runScript(c, "modyfikacja_zadania.py",
+		"--kurs_id", fmt.Sprint(req.KursID),
+		"--nazwa_zadania", req.Zadanie,
+		"--nowy_termin", req.Termin,
+	)
 }
 
 // @Tags   CourseAction
@@ -300,88 +308,121 @@ func rescheduleAssignment(c *gin.Context) {
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Param req body DeleteCourseReq true "Delete course"
+// @Param req body DeleteCourseReq true "Delete course request"
 // @Success 200 {object} ScriptResponse
 // @Router /kurs [delete]
 func deleteCourse(c *gin.Context) {
 	var req DeleteCourseReq
-	if c.ShouldBindJSON(&req) == nil {
-		runScript(c, "usuwanie_kursu.py",
-			"--nazwa", req.Nazwa,
-		)
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
+
+	// 1) Remove ALL student–course links for this kurs_id
+	db, err := openDB()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to open database"})
+		return
+	}
+	defer db.Close()
+
+	if res, err := db.Exec(
+		"DELETE FROM uczniowie_kursy WHERE kurs_id = ?", req.KursID,
+	); err != nil {
+		log.Printf("failed to delete enrollments: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to delete enrollments"})
+		return
+	} else {
+		n, _ := res.RowsAffected()
+		log.Printf("deleted %d enrollments for kurs_id=%d", n, req.KursID)
+	}
+
+	// 2) Now delete the course itself via your Python script
+	runScript(c, "usuwanie_kursu.py",
+		"--kurs_id", fmt.Sprint(req.KursID),
+	)
 }
 
-// @Tags   AssingmentAction
+// @Tags   AssignmentAction
 // @Summary Delete assignment
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Param req body DeleteAssignmentReq true "Delete assingment"
+// @Param req body DeleteAssignmentReq true "Delete assignment request"
 // @Success 200 {object} ScriptResponse
 // @Router /zadanie [delete]
 func deleteAssignment(c *gin.Context) {
 	var req DeleteAssignmentReq
-	if c.ShouldBindJSON(&req) == nil {
-		runScript(c, "usuwanie_zadania.py",
-			"--nazwa_kursu", req.Kurs,
-			"--nazwa_zadania", req.Zadanie,
-		)
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
+
+	runScript(c, "usuwanie_zadania.py",
+		"--kurs_id", fmt.Sprint(req.KursID),
+		"--nazwa_zadania", req.Zadanie,
+	)
 }
 
-// @Tags   AssingmentAction
+// @Tags   AssignmentAction
 // @Summary Submit assignment
 // @Security BearerAuth
 // @Accept multipart/form-data
 // @Produce json
 // @Param student_login formData string true "Student login"
-// @Param nazwa_kursu formData string true "Course name"
+// @Param kurs_id formData int true "Course ID"
 // @Param nazwa_zadania formData string true "Assignment name"
 // @Param plik formData file true "Assignment file"
 // @Success 200 {object} ScriptResponse
 // @Router /zadanie/upload [post]
 func submitAssignment(c *gin.Context) {
 	var form SubmitAssignmentForm
-	if c.ShouldBind(&form) == nil {
-		file, err := c.FormFile("plik")
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "plik is required"})
-			return
-		}
-		dst := filepath.Join("/tmp", file.Filename)
-		if err := c.SaveUploadedFile(file, dst); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "save error"})
-			return
-		}
-		runScript(c, "wysylanie_zadania.py",
-			"--sciezka_pliku", dst,
-			"--student_login", form.StudentLogin,
-			"--nazwa_kursu", form.Kurs,
-			"--nazwa_zadania", form.Zadanie,
-		)
+	if err := c.ShouldBind(&form); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
+
+	file, err := c.FormFile("plik")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "plik is required"})
+		return
+	}
+	dst := filepath.Join("/tmp", file.Filename)
+	if err := c.SaveUploadedFile(file, dst); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "save error"})
+		return
+	}
+
+	runScript(c, "wysylanie_zadania.py",
+		"--sciezka_pliku", dst,
+		"--student_login", form.StudentLogin,
+		"--kurs_id", fmt.Sprint(form.KursID),
+		"--nazwa_zadania", form.Zadanie,
+	)
 }
 
-// @Tags   AssingmentAction
+// @Tags   AssignmentAction
 // @Summary Check submission
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Param student_login query string true "Student login"
-// @Param nazwa_kursu query string true "Course name"
-// @Param nazwa_zadania query string true "Assignment name"
-// @Success 200 {object} ScriptResponse
+// @Param  student_login  query   string  true  "Student login"
+// @Param  kurs_id        query   int     true  "Course ID"
+// @Param  nazwa_zadania  query   string  true  "Assignment name"
+// @Success 200 {object}  ScriptResponse
 // @Router /zadanie/check [get]
 func checkSubmission(c *gin.Context) {
 	var q CheckSubmissionQuery
-	if c.ShouldBindQuery(&q) == nil {
-		runScript(c, "sprawdz_plik.py",
-			"--student_login", q.StudentLogin,
-			"--nazwa_kursu", q.Kurs,
-			"--nazwa_zadania", q.Zadanie,
-		)
+	if err := c.ShouldBindQuery(&q); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
+
+	runScript(c, "sprawdz_plik.py",
+		"--student_login", q.StudentLogin,
+		"--kurs_id", fmt.Sprint(q.KursID),
+		"--nazwa_zadania", q.Zadanie,
+	)
 }
 
 // @Tags   CourseAction
@@ -389,17 +430,20 @@ func checkSubmission(c *gin.Context) {
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Param req body AssignUserReq true "Assign user"
+// @Param req body AssignUserReq true "Assign user request"
 // @Success 200 {object} ScriptResponse
 // @Router /kurs/assign [post]
 func assignUserToCourse(c *gin.Context) {
 	var req AssignUserReq
-	if c.ShouldBindJSON(&req) == nil {
-		runScript(c, "przypisz_uzytkownika_do_kursu.py",
-			"--student_login", req.StudentLogin,
-			"--nazwa_kursu", req.Kurs,
-		)
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
+
+	runScript(c, "przypisz_uzytkownika_do_kursu.py",
+		"--student_login", req.StudentLogin,
+		"--kurs_id", fmt.Sprint(req.KursID),
+	)
 }
 
 // @Tags   CourseAction
@@ -407,17 +451,20 @@ func assignUserToCourse(c *gin.Context) {
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Param req body RemoveUserReq true "Remove user"
+// @Param req body RemoveUserReq true "Remove user request"
 // @Success 200 {object} ScriptResponse
-// @Router /kurs/remove [delete]
+// @Router /kurs/remove [post]
 func removeUserFromCourse(c *gin.Context) {
 	var req RemoveUserReq
-	if c.ShouldBindJSON(&req) == nil {
-		runScript(c, "usun_uzytkownika_z_kursu.py",
-			"--student_login", req.StudentLogin,
-			"--nazwa_kursu", req.Kurs,
-		)
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
+
+	runScript(c, "usun_uzytkownika_z_kursu.py",
+		"--student_login", req.StudentLogin,
+		"--kurs_id", fmt.Sprint(req.KursID),
+	)
 }
 
 // @Tags   GetInfo

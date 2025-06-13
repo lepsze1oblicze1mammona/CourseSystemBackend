@@ -5,7 +5,7 @@ import os
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 db_file = os.path.join(BASE_DIR, "baza.db")
 
-def usun_uzytkownika(student_login, nazwa_kursu):
+def usun_uzytkownika(student_login, kurs_id):
     conn = sqlite3.connect(db_file)
     c = conn.cursor()
 
@@ -27,27 +27,27 @@ def usun_uzytkownika(student_login, nazwa_kursu):
         return
     student_id = student[0]
 
-    # Pobierz id kursu po nazwie
-    c.execute("SELECT id FROM WszystkieKursy WHERE nazwa=?", (nazwa_kursu,))
+    # Sprawdź czy kurs istnieje
+    c.execute("SELECT nazwa FROM WszystkieKursy WHERE id=?", (kurs_id,))
     kurs = c.fetchone()
     if not kurs:
-        print(f"Kurs '{nazwa_kursu}' nie istnieje!")
+        print(f"Kurs o id '{kurs_id}' nie istnieje!")
         conn.close()
         return
-    kurs_id = kurs[0]
+    nazwa_kursu = kurs[0]
 
     # Usuń przypisanie
     c.execute("DELETE FROM uczniowie_kursy WHERE uczen_id=? AND kurs_id=?", (student_id, kurs_id))
     if c.rowcount == 0:
-        print(f"Student '{student_login}' nie był przypisany do kursu '{nazwa_kursu}'.")
+        print(f"Student '{student_login}' nie był przypisany do kursu o id '{kurs_id}'.")
     else:
-        print(f"Student '{student_login}' został usunięty z kursu '{nazwa_kursu}'.")
+        print(f"Student '{student_login}' został usunięty z kursu o id '{kurs_id}'.")
     conn.commit()
     conn.close()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Usuń użytkownika z kursu")
     parser.add_argument('--student_login', required=True, help="Login studenta")
-    parser.add_argument('--nazwa_kursu', required=True, help="Nazwa kursu")
+    parser.add_argument('--kurs_id', required=True, type=int, help="ID kursu")
     args = parser.parse_args()
-    usun_uzytkownika(args.student_login, args.nazwa_kursu)
+    usun_uzytkownika(args.student_login, args.kurs_id)

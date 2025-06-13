@@ -2,12 +2,12 @@ basePath: /
 definitions:
   main.AssignUserReq:
     properties:
-      nazwa_kursu:
-        type: string
+      kurs_id:
+        type: integer
       student_login:
         type: string
     required:
-    - nazwa_kursu
+    - kurs_id
     - student_login
     type: object
   main.Course:
@@ -19,8 +19,8 @@ definitions:
     type: object
   main.CreateAssignmentReq:
     properties:
-      nazwa_kursu:
-        type: string
+      kurs_id:
+        type: integer
       nazwa_zadania:
         type: string
       opis:
@@ -29,7 +29,7 @@ definitions:
         description: YYYY-MM-DD
         type: string
     required:
-    - nazwa_kursu
+    - kurs_id
     - nazwa_zadania
     - opis
     - termin
@@ -46,20 +46,20 @@ definitions:
     type: object
   main.DeleteAssignmentReq:
     properties:
-      nazwa_kursu:
-        type: string
+      kurs_id:
+        type: integer
       nazwa_zadania:
         type: string
     required:
-    - nazwa_kursu
+    - kurs_id
     - nazwa_zadania
     type: object
   main.DeleteCourseReq:
     properties:
-      nazwa:
-        type: string
+      kurs_id:
+        type: integer
     required:
-    - nazwa
+    - kurs_id
     type: object
   main.LoginReq:
     properties:
@@ -94,35 +94,35 @@ definitions:
     type: object
   main.RemoveUserReq:
     properties:
-      nazwa_kursu:
-        type: string
+      kurs_id:
+        type: integer
       student_login:
         type: string
     required:
-    - nazwa_kursu
+    - kurs_id
     - student_login
     type: object
   main.RenameCourseReq:
     properties:
+      kurs_id:
+        type: integer
       nowa_nazwa:
         type: string
-      stara_nazwa:
-        type: string
     required:
+    - kurs_id
     - nowa_nazwa
-    - stara_nazwa
     type: object
   main.RescheduleAssignmentReq:
     properties:
-      nazwa_kursu:
-        type: string
+      kurs_id:
+        type: integer
       nazwa_zadania:
         type: string
       nowy_termin:
         description: YYYY-MM-DD
         type: string
     required:
-    - nazwa_kursu
+    - kurs_id
     - nazwa_zadania
     - nowy_termin
     type: object
@@ -195,7 +195,7 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: Delete course
+      - description: Delete course request
         in: body
         name: req
         required: true
@@ -239,7 +239,7 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: Rename course
+      - description: Rename course request
         in: body
         name: req
         required: true
@@ -262,7 +262,7 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: Assign user
+      - description: Assign user request
         in: body
         name: req
         required: true
@@ -281,11 +281,11 @@ paths:
       tags:
       - CourseAction
   /kurs/remove:
-    delete:
+    post:
       consumes:
       - application/json
       parameters:
-      - description: Remove user
+      - description: Remove user request
         in: body
         name: req
         required: true
@@ -510,7 +510,7 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: Delete assingment
+      - description: Delete assignment request
         in: body
         name: req
         required: true
@@ -527,12 +527,12 @@ paths:
       - BearerAuth: []
       summary: Delete assignment
       tags:
-      - AssingmentAction
+      - AssignmentAction
     post:
       consumes:
       - application/json
       parameters:
-      - description: Create course assingment
+      - description: Create assignment request
         in: body
         name: req
         required: true
@@ -549,12 +549,12 @@ paths:
       - BearerAuth: []
       summary: Create assignment
       tags:
-      - AssingmentAction
+      - AssignmentAction
     put:
       consumes:
       - application/json
       parameters:
-      - description: Reschedule assingment
+      - description: Reschedule assignment request
         in: body
         name: req
         required: true
@@ -571,7 +571,7 @@ paths:
       - BearerAuth: []
       summary: Reschedule assignment
       tags:
-      - AssingmentAction
+      - AssignmentAction
   /zadanie/check:
     get:
       consumes:
@@ -582,11 +582,11 @@ paths:
         name: student_login
         required: true
         type: string
-      - description: Course name
+      - description: Course ID
         in: query
-        name: nazwa_kursu
+        name: kurs_id
         required: true
-        type: string
+        type: integer
       - description: Assignment name
         in: query
         name: nazwa_zadania
@@ -603,7 +603,7 @@ paths:
       - BearerAuth: []
       summary: Check submission
       tags:
-      - AssingmentAction
+      - AssignmentAction
   /zadanie/upload:
     post:
       consumes:
@@ -614,11 +614,11 @@ paths:
         name: student_login
         required: true
         type: string
-      - description: Course name
+      - description: Course ID
         in: formData
-        name: nazwa_kursu
+        name: kurs_id
         required: true
-        type: string
+        type: integer
       - description: Assignment name
         in: formData
         name: nazwa_zadania
@@ -640,7 +640,7 @@ paths:
       - BearerAuth: []
       summary: Submit assignment
       tags:
-      - AssingmentAction
+      - AssignmentAction
 securityDefinitions:
   BearerAuth:
     description: 'Enter your JWT token as: Bearer <token>'
