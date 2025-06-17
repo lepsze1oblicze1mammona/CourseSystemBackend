@@ -696,9 +696,9 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "description": "Assignment name",
-                        "name": "nazwa_zadania",
+                        "type": "integer",
+                        "description": "Assignment ID",
+                        "name": "zadanie_id",
                         "in": "query",
                         "required": true
                     }
@@ -746,9 +746,9 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "description": "Assignment name",
-                        "name": "nazwa_zadania",
+                        "type": "integer",
+                        "description": "Assignment ID",
+                        "name": "zadanie_id",
                         "in": "formData",
                         "required": true
                     },
@@ -841,14 +841,14 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "kurs_id",
-                "nazwa_zadania"
+                "zadanie_id"
             ],
             "properties": {
                 "kurs_id": {
                     "type": "integer"
                 },
-                "nazwa_zadania": {
-                    "type": "string"
+                "zadanie_id": {
+                    "type": "integer"
                 }
             }
         },
@@ -942,19 +942,19 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "kurs_id",
-                "nazwa_zadania",
-                "nowy_termin"
+                "nowy_termin",
+                "zadanie_id"
             ],
             "properties": {
                 "kurs_id": {
                     "type": "integer"
                 },
-                "nazwa_zadania": {
-                    "type": "string"
-                },
                 "nowy_termin": {
                     "description": "YYYY-MM-DD",
                     "type": "string"
+                },
+                "zadanie_id": {
+                    "type": "integer"
                 }
             }
         },

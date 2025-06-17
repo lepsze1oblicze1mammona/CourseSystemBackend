@@ -121,9 +121,9 @@ type RenameCourseReq struct {
 }
 
 type RescheduleAssignmentReq struct {
-	KursID  int    `json:"kurs_id" binding:"required"`
-	Zadanie string `json:"nazwa_zadania" binding:"required"`
-	Termin  string `json:"nowy_termin" binding:"required"` // YYYY-MM-DD
+	KursID    int    `json:"kurs_id" binding:"required"`
+	ZadanieID int    `json:"zadanie_id" binding:"required"`
+	Termin    string `json:"nowy_termin" binding:"required"` // YYYY-MM-DD
 }
 
 type DeleteCourseReq struct {
@@ -131,20 +131,20 @@ type DeleteCourseReq struct {
 }
 
 type DeleteAssignmentReq struct {
-	KursID  int    `json:"kurs_id" binding:"required"`
-	Zadanie string `json:"nazwa_zadania" binding:"required"`
+	KursID    int `json:"kurs_id" binding:"required"`
+	ZadanieID int `json:"zadanie_id" binding:"required"`
 }
 
 type SubmitAssignmentForm struct {
 	StudentLogin string `form:"student_login" binding:"required"`
 	KursID       int    `form:"kurs_id" binding:"required"`
-	Zadanie      string `form:"nazwa_zadania" binding:"required"`
+	ZadanieID    int    `form:"zadanie_id" binding:"required"`
 }
 
 type CheckSubmissionQuery struct {
 	StudentLogin string `form:"student_login" binding:"required"`
 	KursID       int    `form:"kurs_id" binding:"required"`
-	Zadanie      string `form:"nazwa_zadania" binding:"required"`
+	ZadanieID    int    `form:"zadanie_id" binding:"required"`
 }
 
 type AssignUserReq struct {
@@ -298,7 +298,7 @@ func rescheduleAssignment(c *gin.Context) {
 
 	runScript(c, "modyfikacja_zadania.py",
 		"--kurs_id", fmt.Sprint(req.KursID),
-		"--nazwa_zadania", req.Zadanie,
+		"--zadanie_id", fmt.Sprint(req.ZadanieID),
 		"--nowy_termin", req.Termin,
 	)
 }
@@ -360,7 +360,7 @@ func deleteAssignment(c *gin.Context) {
 
 	runScript(c, "usuwanie_zadania.py",
 		"--kurs_id", fmt.Sprint(req.KursID),
-		"--nazwa_zadania", req.Zadanie,
+		"--zadanie_id", fmt.Sprint(req.ZadanieID),
 	)
 }
 
@@ -371,7 +371,7 @@ func deleteAssignment(c *gin.Context) {
 // @Produce json
 // @Param student_login formData string true "Student login"
 // @Param kurs_id formData int true "Course ID"
-// @Param nazwa_zadania formData string true "Assignment name"
+// @Param zadanie_id formData int true "Assignment ID"
 // @Param plik formData file true "Assignment file"
 // @Success 200 {object} ScriptResponse
 // @Router /zadanie/upload [post]
@@ -397,7 +397,7 @@ func submitAssignment(c *gin.Context) {
 		"--sciezka_pliku", dst,
 		"--student_login", form.StudentLogin,
 		"--kurs_id", fmt.Sprint(form.KursID),
-		"--nazwa_zadania", form.Zadanie,
+		"--zadanie_id", fmt.Sprint(form.ZadanieID),
 	)
 }
 
@@ -408,8 +408,8 @@ func submitAssignment(c *gin.Context) {
 // @Produce json
 // @Param  student_login  query   string  true  "Student login"
 // @Param  kurs_id        query   int     true  "Course ID"
-// @Param  nazwa_zadania  query   string  true  "Assignment name"
-// @Success 200 {object}  ScriptResponse
+// @Param  zadanie_id     query   int     true  "Assignment ID"
+// @Success 200 {object} ScriptResponse
 // @Router /zadanie/check [get]
 func checkSubmission(c *gin.Context) {
 	var q CheckSubmissionQuery
@@ -421,7 +421,7 @@ func checkSubmission(c *gin.Context) {
 	runScript(c, "sprawdz_plik.py",
 		"--student_login", q.StudentLogin,
 		"--kurs_id", fmt.Sprint(q.KursID),
-		"--nazwa_zadania", q.Zadanie,
+		"--zadanie_id", fmt.Sprint(q.ZadanieID),
 	)
 }
 
@@ -634,7 +634,10 @@ func getCoursesByCreator(c *gin.Context) {
 		}
 		courses = append(courses, course)
 	}
-
+	if len(courses) == 0 {
+		c.JSON(http.StatusOK, gin.H{"message": "not found"})
+		return
+	}
 	c.JSON(http.StatusOK, courses)
 }
 
@@ -681,6 +684,11 @@ func getTasksByCourse(c *gin.Context) {
 			return
 		}
 		tasks = append(tasks, t)
+	}
+
+	if len(tasks) == 0 {
+		c.JSON(http.StatusOK, gin.H{"message": "no tasks found"})
+		return
 	}
 
 	c.JSON(http.StatusOK, tasks)
@@ -775,6 +783,11 @@ func getStudentsByCourse(c *gin.Context) {
 		students = append(students, s)
 	}
 
+	if len(students) == 0 {
+		c.JSON(http.StatusOK, gin.H{"message": "students not found"})
+		return
+	}
+
 	c.JSON(http.StatusOK, students)
 }
 
@@ -865,6 +878,11 @@ func getCoursesByStudent(c *gin.Context) {
 			return
 		}
 		courses = append(courses, sc)
+	}
+
+	if len(courses) == 0 {
+		c.JSON(http.StatusOK, gin.H{"message": "no courses found"})
+		return
 	}
 
 	c.JSON(http.StatusOK, courses)

@@ -48,11 +48,11 @@ definitions:
     properties:
       kurs_id:
         type: integer
-      nazwa_zadania:
-        type: string
+      zadanie_id:
+        type: integer
     required:
     - kurs_id
-    - nazwa_zadania
+    - zadanie_id
     type: object
   main.DeleteCourseReq:
     properties:
@@ -116,15 +116,15 @@ definitions:
     properties:
       kurs_id:
         type: integer
-      nazwa_zadania:
-        type: string
       nowy_termin:
         description: YYYY-MM-DD
         type: string
+      zadanie_id:
+        type: integer
     required:
     - kurs_id
-    - nazwa_zadania
     - nowy_termin
+    - zadanie_id
     type: object
   main.ScriptResponse:
     properties:
@@ -587,11 +587,11 @@ paths:
         name: kurs_id
         required: true
         type: integer
-      - description: Assignment name
+      - description: Assignment ID
         in: query
-        name: nazwa_zadania
+        name: zadanie_id
         required: true
-        type: string
+        type: integer
       produces:
       - application/json
       responses:
@@ -619,11 +619,11 @@ paths:
         name: kurs_id
         required: true
         type: integer
-      - description: Assignment name
+      - description: Assignment ID
         in: formData
-        name: nazwa_zadania
+        name: zadanie_id
         required: true
-        type: string
+        type: integer
       - description: Assignment file
         in: formData
         name: plik
