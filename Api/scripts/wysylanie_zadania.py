@@ -67,7 +67,7 @@ def wyslij_zadanie(sciezka_pliku, student_login, kurs_id, zadanie_id):
     shutil.copy(sciezka_pliku, dst)
 
     mtime = os.path.getmtime(dst)
-    ts = datetime.fromtimestamp(mtime).strftime("%Y-%m-%d %H:%M:%S")
+    ts = datetime.fromtimestamp(mtime).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
 
     conn.close()
     return dst, ts

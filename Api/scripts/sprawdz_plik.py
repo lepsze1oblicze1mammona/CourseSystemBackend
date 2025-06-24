@@ -62,10 +62,10 @@ def sprawdz_plik(student_login, kurs_id, zadanie_id):
 
     filepath = matches[0]
     mtime = os.path.getmtime(filepath)
-    ts = datetime.fromtimestamp(mtime).strftime("%Y-%m-%d %H:%M:%S")
+    ts = datetime.fromtimestamp(mtime).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
 
        # Sprawdź termin
-    if datetime.now() > datetime.strptime(termin, "%Y-%m-%d"):
+    if datetime.now() > datetime.strptime(termin, "%Y-%m-%dT%H:%M:%S.%fZ"):
         conn.close()
         return {"result": "Termin przekroczony", "time_of_check": ts}
 
